@@ -1,0 +1,254 @@
+body {
+  background: #050b16;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.pivot-page {
+  padding: 40px;
+}
+
+.pivot-header h1 {
+  font-size: 45px;
+  margin-bottom: 10px;
+}
+
+.pivot-header p {
+  color: #94a3b8;
+  margin-bottom: 40px;
+}
+
+.pivot-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.pivot-card {
+  background: linear-gradient(
+    90deg,
+    #0b1220,
+    #101827
+  );
+
+  border: 1px solid #1e293b;
+  border-radius: 22px;
+
+  padding: 30px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  transition: 0.3s;
+}
+
+.pivot-card:hover {
+  transform: translateY(-3px);
+  border-color: #00ff99;
+  box-shadow: 0 0 30px rgba(0, 255, 153, 0.12);
+}
+
+.pivot-left {
+  display: flex;
+  gap: 25px;
+  align-items: center;
+}
+
+.lab-icon {
+  width: 120px;
+  height: 120px;
+
+  border-radius: 20px;
+
+  background: rgba(0, 255, 153, 0.08);
+
+  border: 1px solid rgba(0, 255, 153, 0.2);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #00ff99;
+}
+
+.lab-info {
+  max-width: 600px;
+}
+
+.lab-top {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.lab-number {
+  background: rgba(0, 255, 153, 0.12);
+  border: 1px solid rgba(0, 255, 153, 0.3);
+
+  color: #00ff99;
+
+  padding: 8px 14px;
+  border-radius: 12px;
+
+  font-weight: bold;
+}
+
+.lab-top h2 {
+  font-size: 34px;
+}
+
+.difficulty {
+  margin-top: 12px;
+  margin-bottom: 15px;
+
+  width: fit-content;
+
+  padding: 8px 14px;
+  border-radius: 999px;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.easy {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+
+.medium {
+  background: rgba(168, 85, 247, 0.12);
+  color: #a855f7;
+}
+
+.hard {
+  background: rgba(249, 115, 22, 0.12);
+  color: #f97316;
+}
+
+.insane {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.lab-info p {
+  color: #94a3b8;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.lab-meta {
+  display: flex;
+  gap: 15px;
+}
+
+.lab-meta span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  background: rgba(255, 255, 255, 0.04);
+
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  padding: 10px 14px;
+  border-radius: 12px;
+
+  color: #cbd5e1;
+}
+
+.pivot-right {
+  width: 320px;
+}
+
+.ip-label {
+  color: #94a3b8;
+  margin-bottom: 12px;
+}
+
+.ip-box {
+  height: 60px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(0, 255, 153, 0.35);
+
+  background: rgba(0, 0, 0, 0.35);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 18px;
+
+  color: #00ff99;
+  font-size: 20px;
+  font-weight: bold;
+
+  margin-bottom: 18px;
+}
+
+.copy-icon {
+  cursor: pointer;
+}
+
+.start-btn {
+  width: 100%;
+  height: 58px;
+
+  border: none;
+  border-radius: 14px;
+
+  background: #00ff99;
+
+  color: black;
+  font-size: 20px;
+  font-weight: bold;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.start-btn:hover {
+  transform: scale(1.02);
+}
+
+@media (max-width: 1000px) {
+  .pivot-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 30px;
+  }
+
+  .pivot-right {
+    width: 100%;
+  }
+
+  .pivot-left {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .lab-top h2 {
+    font-size: 26px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
