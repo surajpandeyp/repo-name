@@ -4,6 +4,7 @@ import Login from "./page/Login";
 import Register from "./page/Register";
 import Labs from "./page/Labs";
 import Pivoting from "./page/Pivoting";
+import Navbar from "./page/Navbar";
 
 function App() {
   
@@ -11,6 +12,7 @@ function App() {
   return (
     
       <BrowserRouter>
+        <Navbar />
        <Routes>
          <Route path="/" element ={<Login />} />
          <Route path="/register" element={<Register />} />

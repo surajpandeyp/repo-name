@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import "../page/Login.css";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -17,11 +19,19 @@ function Login() {
   };
 
   // Form submit handle
-  const handleSubmit = (e) => {
+  const handleSubmit =  async(e) => {
     e.preventDefault();
-
-    console.log(formData);
-
+    
+    
+    
+    try {
+     const res =  await fetch("http://localhost:3000/docker/login",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+      },
+      body:JSON.stringify(formData)
+      })
     // Yaha baad me backend API call karoge
     // fetch("http://localhost:5000/login", {
     //   method: "POST",
@@ -30,8 +40,23 @@ function Login() {
     //   },
     //   body: JSON.stringify(formData),
     // });
+    
+      const data = await res.json();
 
-    alert("Login Data Submitted");
+      alert(data.message)
+
+      if(data.success){
+        localStorage.setItem("token",data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        navigate("/labs")
+      }
+
+    
+      
+    }catch (error) {
+      console.log(error); 
+    }  
+  
   };
 
   return (

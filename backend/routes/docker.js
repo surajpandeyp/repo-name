@@ -1,17 +1,150 @@
 const express = require("express");
 const Docker = require("dockerode");
-
+const conn = require("../db")
 const router = express.Router();
+const jwt = require("jsonwebtoken");
+const auth = require("./midd");
 
 const docker = new Docker({
     socketPath: "/var/run/docker.sock"
 });
 
+//==========================
+// login api
+//============
+
+router.post("/login", function (req, res) {
+
+    const email = req.body.email;
+    const password = req.body.password;
+
+    if (!email || !password) {
+
+        return res.status(400).json({
+            success: false,
+            message: "Email and Password Required"
+        });
+
+    }
+      
+    const sql =
+        "SELECT * FROM users WHERE email = ?";
+
+    conn.query(
+        sql,
+        [email],
+        function (err, results) {
+
+            if (err) {
+
+                return res.status(500).json({
+                    success: false,
+                    error: err.message
+                });
+
+            }
+
+            if (results.length === 0) {
+
+                return res.status(401).json({
+                    success: false,
+                    message: "Invalid Email"
+                });
+
+            }
+
+            const user = results[0];
+            
+            const token = jwt.sign(
+                {id:user.id,email:user.email},
+                "suraj123456",
+                {expiresIn:"1h"}
+            )
+            if (user.password !== password) {
+
+                return res.status(401).json({
+                    success: false,
+                    message: "Invalid Password"
+                });
+
+            }
+
+            res.json({
+                success: true,
+                message: "Login Successful",
+                token,
+                user: {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email
+                }
+            });
+            
+        }
+    );
+
+});
+
+
+router.post("/register", (req, res) => {
+
+    const { username, email, password, cpassword } = req.body;
+
+    if (!username || !email || !password || !cpassword) {
+        return res.status(400).json({
+            message: "All fields are required"
+        });
+    }
+
+    if (password !== cpassword) {
+        return res.status(400).json({
+            message: "Passwords do not match"
+        });
+    }
+
+    const checkmailid = "SELECT * FROM users WHERE email = ?";
+
+    conn.query(checkmailid, [email], (err, result) => {
+
+        if (err) {
+            return res.status(500).json({
+                message: "Database error"
+            });
+        }
+
+        if (result.length > 0) {
+            return res.status(400).json({
+                message: "Email already registered"
+            });
+        }
+
+        const sql =
+            "INSERT INTO users (username, email, password, cpassword) VALUES (?, ?, ?, ?)";
+
+        conn.query(sql, [username, email, password, cpassword], (err, result) => {
+
+            if (err) {
+                return res.status(500).json({
+                    message: "Database error"
+                });
+            }
+
+            return res.status(201).json({
+                message: "User registered successfully"
+            });
+
+        });
+
+    });
+
+});
+
+
 
 // =====================================
 // START LAB
 // =====================================
-router.post("/start", async function (req, res) {
+router.post("/start",auth, async function (req, res) {
 
     try {
 
@@ -113,7 +246,7 @@ router.post("/start", async function (req, res) {
 // =====================================
 // STOP LAB
 // =====================================
-router.post("/stop", async function (req, res) {
+router.post("/stop",auth, async function (req, res) {
 
     try {
 

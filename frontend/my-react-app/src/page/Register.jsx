@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import "../page/Register.css"
+import { useNavigate } from "react-router-dom";
 
 
 function Register() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
-    confirmPassword: "",
+    cpassword: "",
   });
 
   const handleChange = (e) => {
@@ -18,17 +20,41 @@ function Register() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     console.log(formData);
 
-    if (formData.password !== formData.confirmPassword) {
+    if (formData.password !== formData.cpassword) {
       alert("Passwords do not match");
       return;
     }
 
-    alert("Registration Successful");
+    try {
+      const res = await fetch("http://localhost:3000/docker/register",{
+        method:"POST",
+        headers:{
+           "Content-Type":"application/json",
+        },
+        body:JSON.stringify(formData)
+      })
+
+      const data = await res.json()
+
+      if(res.ok){
+        alert(data.message);
+        navigate("/")
+        return;
+      }
+    } catch (error) {
+      console.log(error);
+      
+      
+    }
+
+      
+
+    
 
     // Yaha baad me backend API call kar sakte ho
   };
@@ -64,9 +90,9 @@ function Register() {
 
         <input
           type="password"
-          name="confirmPassword"
-          placeholder="Confirm password"
-          value={formData.confirmPassword}
+          name="cpassword"
+          placeholder="cpassword"
+          value={formData.cpassword}
           onChange={handleChange}
         />
 

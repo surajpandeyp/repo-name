@@ -1,5 +1,5 @@
 
-
+import { useEffect } from "react";
 import "./Labs.css";
 import { useNavigate } from "react-router-dom";
 
@@ -43,6 +43,14 @@ const labs = [
 
 function Labs() {
   const navigate = useNavigate();
+  
+  useEffect(() =>{
+    const token = localStorage.getItem("token");
+    
+    if(!token){
+      navigate("/");
+    }
+  });
 
   return (
     <div className="labs-page">
