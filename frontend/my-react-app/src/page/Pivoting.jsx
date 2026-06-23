@@ -212,7 +212,7 @@ function Pivoting() {
 
     try {
       await fetch(
-        "http://localhost:3000/docker/stop",
+        "http://localhost:3000/docker/stop/pivoting/",
         {
           method: "POST",
           headers: {
@@ -220,7 +220,7 @@ function Pivoting() {
             Authorization: "Bearer " + token,
           },
           body: JSON.stringify({
-            containers: lab.containers,
+            labId: lab.id
           }),
         }
       );
