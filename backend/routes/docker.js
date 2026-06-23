@@ -144,7 +144,146 @@ router.post("/register", (req, res) => {
 // =====================================
 // START LAB
 // =====================================
-router.post("/start",auth, async function (req, res) {
+function query(sql, values = []) {
+    return new Promise((resolve, reject) => {
+
+        conn.query(sql, values, function (err, rows) {
+
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+
+        });
+
+    });
+}
+
+
+
+router.post("/start/pivoting", auth, async function (req, res) {
+
+    try {
+
+        const { labId } = req.body;
+
+        if (!labId) {
+            return res.status(400).json({
+                success: false,
+                message: "Lab ID Required"
+            });
+        }
+
+        // Lab Check
+        const labRows = await query(
+            "SELECT * FROM pivoting WHERE lab_id = ?",
+            [labId]
+        );
+
+        if (labRows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Lab Not Found"
+            });
+        }
+
+        const lab = labRows[0];
+
+        // Paid Lab Check
+        if (!lab.is_free) {
+
+            const userId = req.user.id;
+
+            const subRows = await query(
+                `SELECT * FROM subscriptions
+                 WHERE user_id = ?
+                 AND expiry_date > NOW()`,
+                [userId]
+            );
+
+            if (subRows.length === 0) {
+                return res.status(403).json({
+                    success: false,
+                    message: "Subscription Required"
+                });
+            }
+        }
+
+        // Containers Fetch
+        const containerRows = await query(
+            `SELECT container_name
+             FROM pivoting_containers
+             WHERE lab_id = ?`,
+            [labId]
+        );
+
+        const containers = containerRows.map(
+            row => row.container_name
+        );
+
+        if (containers.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "No Containers Found"
+            });
+        }
+
+        let pivotIP = null;
+
+        // Start Containers
+        for (const name of containers) {
+
+            console.log("Starting:", name);
+
+            const container =
+                docker.getContainer(name);
+
+            const info =
+                await container.inspect();
+
+            if (info.State.Status !== "running") {
+                await container.start();
+            }
+
+            const updatedInfo =
+                await container.inspect();
+
+            if (name.includes("pivot")) {
+
+                const networks =
+                    updatedInfo.NetworkSettings.Networks;
+
+                const firstNetwork =
+                    Object.keys(networks)[0];
+
+                pivotIP =
+                    networks[firstNetwork].IPAddress;
+            }
+        }
+
+        return res.json({
+            success: true,
+            ip: pivotIP
+        });
+
+    } catch (err) {
+
+        console.log("START ERROR:", err);
+
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+
+    }
+
+});
+
+
+
+
+router.post("/sta",auth, async function (req, res) {
 
     try {
 
@@ -241,7 +380,7 @@ router.post("/start",auth, async function (req, res) {
     }
 
 });
-
+//=================
 
 // =====================================
 // STOP LAB
@@ -304,6 +443,35 @@ router.post("/stop",auth, async function (req, res) {
 
     }
 
+});
+
+
+router.post("/auth", (req, res) => {
+  const authheader = req.headers.authorization;
+
+  if (!authheader) {
+    return res.status(401).json({
+      message: "No token provided"
+    });
+  }
+
+  const token = authheader.split(" ")[1];
+
+  try {
+    const decode = jwt.verify(token, "suraj123456");
+
+    req.user = decode;
+
+    return res.status(200).json({
+      success: true,
+      user: decode
+    });
+
+  } catch (error) {
+    return res.status(401).json({
+      message: "Invalid or Expired Token"
+    });
+  }
 });
 
 module.exports = router;

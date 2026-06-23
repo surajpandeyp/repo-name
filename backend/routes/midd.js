@@ -5,7 +5,7 @@ function auth(req,res,next){
 
     if(!header){
         return res.status(401).json({message:"NO token"})
-    }
+    } 
 
     const token = header.split(" ")[1];
 

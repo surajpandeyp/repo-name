@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import "./Labs.css";
 import { useNavigate } from "react-router-dom";
@@ -35,7 +34,7 @@ const labs = [
     id: 4,
     title: "Web Exploitation",
     desc: "Practice real world web vulnerabilities",
-    path: "/web-labs",
+    path: "/web",
     image:
       "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop",
   },
@@ -43,14 +42,34 @@ const labs = [
 
 function Labs() {
   const navigate = useNavigate();
-  
-  useEffect(() =>{
-    const token = localStorage.getItem("token");
-    
-    if(!token){
-      navigate("/");
-    }
-  });
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await fetch(
+          "http://localhost:3000/docker/auth",
+          {
+            method: "POST",
+            headers: {
+              Authorization: "Bearer " + token,
+            },
+          }
+        );
+
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          navigate("/");
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    checkAuth();
+  }, [navigate]);
 
   return (
     <div className="labs-page">
@@ -80,6 +99,5 @@ function Labs() {
     </div>
   );
 }
-
 
 export default Labs;
