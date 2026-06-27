@@ -28,6 +28,7 @@ const pivotLabs = [
     difficulty: "Medium",
     desc: "Advanced port forwarding and proxy pivoting techniques.",
     time: "45 - 60 min",
+    isfree: false,
     level: "Intermediate",
     containers: ["web", "db", "pivot2"],
   },
@@ -37,6 +38,7 @@ const pivotLabs = [
     difficulty: "Hard",
     desc: "Multi-hop pivoting and internal network exploitation.",
     time: "60 - 90 min",
+    isfree: false,
     level: "Advanced",
     containers: ["ad", "internal2", "pivot3"],
   },
@@ -46,6 +48,7 @@ const pivotLabs = [
     difficulty: "Insane",
     desc: "Complex pivoting across multiple networks and domain environments.",
     time: "90+ min",
+    isfree: false,
     level: "Expert",
     containers: ["dc01", "web01", "pivot4"],
   },
@@ -74,7 +77,7 @@ function Web() {
         const token = localStorage.getItem("token");
 
         const res = await fetch(
-          "http://localhost:3000/docker/auth",
+          "http://localhost:3000/pivoting/auth",
           {
             method: "POST",
             headers: {
@@ -154,10 +157,10 @@ function Web() {
   // ======================
   // START LAB
   // ======================
-
+  
   const startLab = async (lab) => {
     const token = localStorage.getItem("token");
-
+    
     setLoadingLabs((prev) => ({
       ...prev,
       [lab.id]: true,
@@ -165,7 +168,7 @@ function Web() {
 
     try {
       const res = await fetch(
-        "http://192.168.86.138:3000/docker/start",
+        "http://localhost:3000/web/start/",
         {
           method: "POST",
           headers: {
@@ -173,13 +176,18 @@ function Web() {
             Authorization: "Bearer " + token,
           },
           body: JSON.stringify({
-            containers: lab.containers,
+            labId:lab.id
           }),
         }
       );
 
       const data = await res.json();
-
+      
+      if(res.status === 403){
+        alert("Subscription Required")
+        navigate("/subcribe")
+        return;
+      }
       setStartedLabs((prev) => ({
         ...prev,
         [lab.id]: data.ip,
@@ -204,7 +212,7 @@ function Web() {
 
     try {
       await fetch(
-        "http://localhost:3000/docker/stop",
+        "http://localhost:3000/web/stop/",
         {
           method: "POST",
           headers: {
@@ -212,7 +220,7 @@ function Web() {
             Authorization: "Bearer " + token,
           },
           body: JSON.stringify({
-            containers: lab.containers,
+            labId: lab.id
           }),
         }
       );
@@ -244,7 +252,7 @@ function Web() {
   return (
     <div className="pivot-page">
       <div className="pivot-header">
-        <h1>Web Labs</h1>
+        <h1>Pivoting Labs</h1>
         <p>Web site testing</p>
       </div>
 

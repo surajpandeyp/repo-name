@@ -162,7 +162,7 @@ function query(sql, values = []) {
 
 
 
-router.post("/start/pivoting", auth, async function (req, res) {
+router.post("/start", auth, async function (req, res) {
 
     try {
 
@@ -288,7 +288,7 @@ router.post("/start/pivoting", auth, async function (req, res) {
 // =====================================
 // STOP LAB
 // =====================================
-router.post("/stop/pivoting", auth, async function (req, res) {
+router.post("/stop", auth, async function (req, res) {
 
     try {
 

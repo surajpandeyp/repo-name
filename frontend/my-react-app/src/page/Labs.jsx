@@ -9,7 +9,7 @@ const labs = [
     desc: "Learn internal network pivoting practical labs",
     path: "/pivoting",
     image:
-      "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop",
   },
 
   {
@@ -18,17 +18,9 @@ const labs = [
     desc: "Beginner to advanced capture the flag labs",
     path: "/ctf",
     image:
-      "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200&auto=format&fit=crop",
   },
 
-  {
-    id: 3,
-    title: "Active Directory",
-    desc: "AD enumeration and exploitation practice",
-    path: "/ad-labs",
-    image:
-      "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200&auto=format&fit=crop",
-  },
 
   {
     id: 4,
@@ -36,7 +28,7 @@ const labs = [
     desc: "Practice real world web vulnerabilities",
     path: "/web",
     image:
-      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?q=80&w=1200&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop",
   },
 ];
 
@@ -49,7 +41,7 @@ function Labs() {
         const token = localStorage.getItem("token");
 
         const res = await fetch(
-          "http://localhost:3000/docker/auth",
+          "http://localhost:3000/pivoting/auth",
           {
             method: "POST",
             headers: {
@@ -85,7 +77,7 @@ function Labs() {
             <img src={lab.image} alt={lab.title} />
 
             <div className="lab-content">
-              <h2>{lab.title}</h2>
+              <h2 >{lab.title}</h2>
 
               <p>{lab.desc}</p>
 

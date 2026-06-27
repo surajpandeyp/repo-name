@@ -7,6 +7,10 @@ import Pivoting from "./page/Pivoting";
 import Navbar from "./page/Navbar";
 import Web from "./page/Web";
 import SessionTimeout from "./SessionTimeout";
+import ResetPassword from "./page/ResetP";
+import ForgotPassword from "./page/ForgotP";
+import Subscribe from "./page/Subscribe";
+import Ctf from "./page/Ctf";
 
 function App() {
   
@@ -22,6 +26,10 @@ function App() {
          <Route path="/labs" element={<Labs />} />
          <Route path="/pivoting" element={<Pivoting />} />
          <Route path="/web" element={<Web />} />
+         <Route path="/reset-password/:token" element={<ResetPassword />} />
+         <Route path="/ForgotPassword" element={<ForgotPassword />} />
+         <Route path="/subcribe" element={<Subscribe />} /> 
+         <Route path="/ctf" element={<Ctf />} />
        </Routes>
       </BrowserRouter>
        

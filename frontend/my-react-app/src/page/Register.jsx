@@ -31,7 +31,7 @@ function Register() {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/docker/register",{
+      const res = await fetch("http://localhost:3000/pivoting/register",{
         method:"POST",
         headers:{
            "Content-Type":"application/json",

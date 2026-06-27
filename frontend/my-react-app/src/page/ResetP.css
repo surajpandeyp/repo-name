@@ -1,0 +1,145 @@
+/* ResetPassword.css */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.reset-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background:
+    radial-gradient(circle at top, #0a1428, #050b16);
+
+  padding: 20px;
+}
+
+.reset-card {
+  width: 100%;
+  max-width: 450px;
+
+  background: rgba(15, 23, 42, 0.95);
+
+  border: 1px solid rgba(59, 130, 246, 0.25);
+
+  border-radius: 18px;
+
+  padding: 35px;
+
+  box-shadow:
+    0 0 30px rgba(59, 130, 246, 0.15);
+
+  backdrop-filter: blur(12px);
+
+  text-align: center;
+}
+
+.reset-card h1 {
+  color: white;
+  font-size: 32px;
+  margin-bottom: 25px;
+}
+
+.reset-card h2 {
+  color: white;
+  margin-bottom: 15px;
+}
+
+.reset-card p {
+  color: #94a3b8;
+  margin-top: 12px;
+  line-height: 1.5;
+}
+
+.reset-card input {
+  width: 100%;
+
+  padding: 14px;
+
+  margin-bottom: 15px;
+
+  border-radius: 10px;
+
+  border: 1px solid #334155;
+
+  background: #0f172a;
+
+  color: white;
+
+  font-size: 15px;
+
+  outline: none;
+
+  transition: 0.3s;
+}
+
+.reset-card input:focus {
+  border-color: #3b82f6;
+
+  box-shadow:
+    0 0 12px rgba(59, 130, 246, 0.4);
+}
+
+.reset-card button {
+  width: 100%;
+
+  padding: 14px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  cursor: pointer;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #1d4ed8
+  );
+
+  color: white;
+
+  transition: 0.3s;
+}
+
+.reset-card button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 20px rgba(37, 99, 235, 0.4);
+}
+
+.success-msg {
+  margin-top: 15px;
+
+  color: #22c55e;
+
+  font-weight: 600;
+}
+
+.error-msg {
+  margin-top: 15px;
+
+  color: #ef4444;
+
+  font-weight: 600;
+}
+
+@media (max-width: 500px) {
+
+  .reset-card {
+    padding: 25px;
+  }
+
+  .reset-card h1 {
+    font-size: 26px;
+  }
+
+}

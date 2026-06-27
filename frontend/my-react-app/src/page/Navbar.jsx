@@ -20,7 +20,7 @@ function Navbar() {
 
       {/* LEFT LOGO */}
       <div className="logo" onClick={() => navigate("/")}>
-        🔐 Cyber Labs
+        🔐 HackRange
       </div>
 
       

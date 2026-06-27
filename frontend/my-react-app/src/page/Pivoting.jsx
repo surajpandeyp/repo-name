@@ -77,7 +77,7 @@ function Pivoting() {
         const token = localStorage.getItem("token");
 
         const res = await fetch(
-          "http://localhost:3000/docker/auth",
+          "http://localhost:3000/pivoting/auth",
           {
             method: "POST",
             headers: {
@@ -168,7 +168,7 @@ function Pivoting() {
 
     try {
       const res = await fetch(
-        "http://localhost:3000/docker/start/pivoting/",
+        "http://localhost:3000/pivoting/start/",
         {
           method: "POST",
           headers: {
@@ -185,7 +185,7 @@ function Pivoting() {
       
       if(res.status === 403){
         alert("Subscription Required")
-        navigate("/")
+        navigate("/subcribe")
         return;
       }
       setStartedLabs((prev) => ({
@@ -212,7 +212,7 @@ function Pivoting() {
 
     try {
       await fetch(
-        "http://localhost:3000/docker/stop/pivoting/",
+        "http://localhost:3000/pivoting/stop/",
         {
           method: "POST",
           headers: {

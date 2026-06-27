@@ -25,7 +25,7 @@ function Login() {
     
     
     try {
-     const res =  await fetch("http://localhost:3000/docker/login",{
+     const res =  await fetch("http://localhost:3000/pivoting/login",{
       method:"POST",
       headers:{
         "Content-Type":"application/json",
@@ -85,6 +85,14 @@ function Login() {
             Dont have a account? <br />
             <Link to="/register">Sign Up</Link>
         </p>
+        
+          <p className="forgot-password">
+              <Link to="/ForgotPassword">
+                Forgot Password?
+              </Link>
+          </p>
+
+
          
       </form>
     </div>

@@ -1,0 +1,81 @@
+body {
+  margin: 0;
+  padding: 0;
+  background: #050b16;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.subscribe-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.subscribe-card {
+  width: 450px;
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  color: white;
+  box-shadow: 0 0 25px rgba(0,255,136,.15);
+}
+
+.subscribe-card h1 {
+  margin-bottom: 10px;
+  font-size: 35px;
+}
+
+.subscribe-card p {
+  color: #94a3b8;
+}
+
+.price {
+  margin-top: 25px;
+  margin-bottom: 25px;
+  font-size: 55px;
+  font-weight: bold;
+  color: #00ff88;
+}
+
+.price span {
+  font-size: 18px;
+  color: #94a3b8;
+}
+
+.subscribe-card ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 25px;
+  margin-bottom: 30px;
+}
+
+.subscribe-card li {
+  padding: 10px;
+  border-bottom: 1px solid #1e293b;
+  color: #cbd5e1;
+}
+
+.subscribe-card button {
+  width: 100%;
+  border: none;
+  padding: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 10px;
+  background: #00ff88;
+  color: black;
+  transition: .3s;
+}
+
+.subscribe-card button:hover {
+  transform: translateY(-2px);
+}
+
+.subscribe-card button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
