@@ -14,6 +14,8 @@ import Ctf from "./page/Ctf";
 import TestLogin from "./page/TestLogin";
 import PivotingLabList from "./page/PivotingLabList";
 import LabDetailPage from "./page/LabDetailPage";
+import CtfLabsList from "./page/CtfLabList";
+import WebLabList from "./page/WebLabList";
 
 function App() {
   
@@ -36,6 +38,8 @@ function App() {
          <Route path="/testLogin" element={<TestLogin />} />
          <Route path="/pivotingLabList" element={<PivotingLabList />} />
          <Route path="/labDetailPage/:id" element={<LabDetailPage />} />
+         <Route path="/ctfLabsList" element={<CtfLabsList />} /> 
+         <Route path="/webLabList" element={<WebLabList />} />
        </Routes>
       </BrowserRouter>
        

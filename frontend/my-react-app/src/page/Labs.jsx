@@ -16,7 +16,7 @@ const labs = [
     id: 2,
     title: "CTF Practice",
     desc: "Beginner to advanced capture the flag labs",
-    path: "/ctf",
+    path: "/ctfLabsList",
     image:
       "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200&auto=format&fit=crop",
   },
@@ -26,7 +26,7 @@ const labs = [
     id: 4,
     title: "Web Exploitation",
     desc: "Practice real world web vulnerabilities",
-    path: "/web",
+    path: "/WebLabList",
     image:
       "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=1200&auto=format&fit=crop",
   },
