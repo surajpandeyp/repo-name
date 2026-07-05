@@ -35,7 +35,7 @@ function CtfLabsList() {
     }, [navigate]);
   
   // Logic: Sirf 'pivoting' category wale labs filter karo
-  const pivotingLabs = allLabs.filter(lab => lab.category === 'pivoting');
+  const CtfLabs = allLabs.filter(lab => lab.category === 'ctf');
 
   const handleLabClick = (id) => navigate(`/labDetailPage/${id}`);
 
@@ -54,7 +54,7 @@ function CtfLabsList() {
       </div>
 
       {/* List - Yahan pivotingLabs ko map karenge */}
-      {pivotingLabs.map((lab) => (
+      {CtfLabs.map((lab) => (
         <div key={lab.id} className="lab-row" onClick={() => handleLabClick(lab.id)}>
           <div className="column">{lab.name}</div>
           <div className="column">

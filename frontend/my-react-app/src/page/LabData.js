@@ -40,7 +40,7 @@ export const WebLabs = [
 export const CtfLabs = [
   { 
     id: 'ctf-1', 
-    name: 'Capture The Flag', 
+    name: 'vertex-portal-image', 
     category: 'ctf',
     difficulty: 'Hard', 
     os: 'Linux', 
