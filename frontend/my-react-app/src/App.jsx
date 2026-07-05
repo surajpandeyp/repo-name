@@ -11,6 +11,9 @@ import ResetPassword from "./page/ResetP";
 import ForgotPassword from "./page/ForgotP";
 import Subscribe from "./page/Subscribe";
 import Ctf from "./page/Ctf";
+import TestLogin from "./page/TestLogin";
+import PivotingLabList from "./page/PivotingLabList";
+import LabDetailPage from "./page/LabDetailPage";
 
 function App() {
   
@@ -30,6 +33,9 @@ function App() {
          <Route path="/ForgotPassword" element={<ForgotPassword />} />
          <Route path="/subcribe" element={<Subscribe />} /> 
          <Route path="/ctf" element={<Ctf />} />
+         <Route path="/testLogin" element={<TestLogin />} />
+         <Route path="/pivotingLabList" element={<PivotingLabList />} />
+         <Route path="/labDetailPage/:id" element={<LabDetailPage />} />
        </Routes>
       </BrowserRouter>
        

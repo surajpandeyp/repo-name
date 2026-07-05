@@ -7,7 +7,7 @@ const labs = [
     id: 1,
     title: "Pivoting",
     desc: "Learn internal network pivoting practical labs",
-    path: "/pivoting",
+    path: "/pivotingLabList",
     image:
       "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=1200&auto=format&fit=crop",
   },

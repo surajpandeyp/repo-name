@@ -57,20 +57,54 @@ const pivotLabs = [
 function Ctf() {
   const navigate = useNavigate();
 
-  // ======================
-  // STATES
-  // ======================
-
+  // ==========================================
+  // COMPONENT STATES
+  // ==========================================
   const [startedLabs, setStartedLabs] = useState({});
   const [loadingLabs, setLoadingLabs] = useState({});
-
   const [userFlags, setUserFlags] = useState({});
   const [flagStatus, setFlagStatus] = useState({});
+  const [isAnyLabRunning, setIsAnyLabRunning] = useState(false);
 
-  // ======================
-  // AUTH CHECK
-  // ======================
+  // ==========================================
+  // LIFECYCLE: FETCH ACTIVE LAB STATUS
+  // ==========================================
+  useEffect(() => {
+    const fetchLabStatus = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) return;
 
+        const res = await fetch("http://localhost:3000/test/status", {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
+
+        const data = await res.json();
+
+        if (data.success && data.running) {
+          const runningLabId = Number(data.labId);
+          setStartedLabs({
+            [runningLabId]: data.ip,
+          });
+          setIsAnyLabRunning(true);
+        } else {
+          setStartedLabs({});
+          setIsAnyLabRunning(false);
+        }
+      } catch (err) {
+        console.log("Error fetching status:", err);
+      }
+    };
+
+    fetchLabStatus();
+  }, []);
+
+  // ==========================================
+  // LIFECYCLE: SESSION SECURITY & AUTH CHECK
+  // ==========================================
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -99,10 +133,9 @@ function Ctf() {
     checkAuth();
   }, [navigate]);
 
-  // ======================
-  // FLAG INPUT
-  // ======================
-
+  // ==========================================
+  // EVENT HANDLERS
+  // ==========================================
   const handleUserFlagChange = (labId, value) => {
     setUserFlags((prev) => ({
       ...prev,
@@ -110,10 +143,9 @@ function Ctf() {
     }));
   };
 
-  // ======================
-  // SUBMIT FLAG
-  // ======================
-
+  // ==========================================
+  // ACTION: SUBMIT FLAG VERIFICATION
+  // ==========================================
   const submitUserFlag = async (lab) => {
     const token = localStorage.getItem("token");
 
@@ -146,7 +178,6 @@ function Ctf() {
       }));
     } catch (err) {
       console.log(err);
-
       setFlagStatus((prev) => ({
         ...prev,
         [lab.id]: "Error submitting flag",
@@ -154,13 +185,24 @@ function Ctf() {
     }
   };
 
-  // ======================
-  // START LAB
-  // ======================
-  
+  // ==========================================
+  // ACTION: START TARGET LAB CONTEXT
+  // ==========================================
   const startLab = async (lab) => {
     const token = localStorage.getItem("token");
     
+    // GUARD CLAUSE: Block execution if another container instance is currently active
+    if (isAnyLabRunning) {
+      const runningLabId = Object.keys(startedLabs)[0];
+      
+      if (runningLabId && Number(runningLabId) !== Number(lab.id)) {
+        alert(`Lab ${runningLabId} is already running! You cannot start multiple labs simultaneously. Please stop the active lab first.`);
+      } else {
+        alert("This specific lab is already running!");
+      }
+      return; 
+    }
+
     setLoadingLabs((prev) => ({
       ...prev,
       [lab.id]: true,
@@ -168,51 +210,7 @@ function Ctf() {
 
     try {
       const res = await fetch(
-        "http://localhost:3000/ctf/start/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer " + token,
-          },
-          body: JSON.stringify({
-            labId:lab.id
-          }),
-        }
-      );
-
-      const data = await res.json();
-      
-      if(res.status === 403){
-        alert("Subscription Required")
-        navigate("/subcribe")
-        return;
-      }
-      setStartedLabs((prev) => ({
-        ...prev,
-        [lab.id]: data.ip,
-      }));
-    } catch (err) {
-      console.log(err);
-      alert("Failed To Start Lab");
-    }
-
-    setLoadingLabs((prev) => ({
-      ...prev,
-      [lab.id]: false,
-    }));
-  };
-
-  // ======================
-  // STOP LAB
-  // ======================
-
-  const stopLab = async (lab) => {
-    const token = localStorage.getItem("token");
-
-    try {
-      await fetch(
-        "http://localhost:3000/ctf/stop/",
+        "http://localhost:3000/test/start/",
         {
           method: "POST",
           headers: {
@@ -225,29 +223,81 @@ function Ctf() {
         }
       );
 
-      setStartedLabs((prev) => {
-        const updated = { ...prev };
-        delete updated[lab.id];
-        return updated;
-      });
+      const data = await res.json();
+      
+      if (res.status === 403) {
+        alert("Subscription Required");
+        navigate("/subcribe");
+        return;
+      }
+
+      if (!res.ok) {
+        alert(data.message || "Failed To Start Lab");
+        return;
+      }
+
+      const currentLabId = Number(lab.id);
+      setStartedLabs((prev) => ({
+        ...prev,
+        [currentLabId]: data.ip,
+      }));
+      setIsAnyLabRunning(true);
+
+    } catch (err) {
+      console.log(err);
+      alert("Failed To Start Lab");
+    } finally {
+      setLoadingLabs((prev) => ({
+        ...prev,
+        [lab.id]: false,
+      }));
+    }
+  };
+
+  // ==========================================
+  // ACTION: STOP RUNNING LAB CONTEXT
+  // ==========================================
+  const stopLab = async (lab) => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await fetch(
+        "http://localhost:3000/test/stop/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + token,
+          },
+          body: JSON.stringify({
+            labId: lab.id
+          }),
+        }
+      );
+
+      if (res.ok) {
+        setStartedLabs((prev) => {
+          const updated = { ...prev };
+          delete updated[Number(lab.id)]; 
+          return updated;
+        });
+        setIsAnyLabRunning(false); 
+      } else {
+        alert("Failed To Stop Lab");
+      }
     } catch (err) {
       console.log(err);
       alert("Failed To Stop Lab");
     }
   };
 
-  // ======================
-  // COPY IP
-  // ======================
-
+  // ==========================================
+  // UTILITY: UTILS FOR CLIPBOARD COPY
+  // ==========================================
   const copyIP = (ip) => {
     navigator.clipboard.writeText(ip);
-    alert("IP Copied: " + ip);
+    alert("IP Address Copied: " + ip);
   };
-
-  // ======================
-  // JSX
-  // ======================
 
   return (
     <div className="pivot-page">
@@ -279,9 +329,7 @@ function Ctf() {
                   )}
                 </div>
 
-                <div
-                  className={`difficulty ${lab.difficulty.toLowerCase()}`}
-                >
+                <div className={`difficulty ${lab.difficulty.toLowerCase()}`}>
                   ● {lab.difficulty}
                 </div>
 
@@ -305,18 +353,13 @@ function Ctf() {
                     placeholder="User Flag"
                     value={userFlags[lab.id] || ""}
                     onChange={(e) =>
-                      handleUserFlagChange(
-                        lab.id,
-                        e.target.value
-                      )
+                      handleUserFlagChange(lab.id, e.target.value)
                     }
                   />
 
                   <button
                     className="submit-flag-btn"
-                    onClick={() =>
-                      submitUserFlag(lab)
-                    }
+                    onClick={() => submitUserFlag(lab)}
                   >
                     Submit User Flag
                   </button>
@@ -348,11 +391,7 @@ function Ctf() {
                   <Copy
                     size={20}
                     className="copy-icon"
-                    onClick={() =>
-                      copyIP(
-                        startedLabs[lab.id]
-                      )
-                    }
+                    onClick={() => copyIP(startedLabs[lab.id])}
                   />
                 )}
               </div>
@@ -361,12 +400,8 @@ function Ctf() {
                 {!startedLabs[lab.id] ? (
                   <button
                     className="start-btn"
-                    onClick={() =>
-                      startLab(lab)
-                    }
-                    disabled={
-                      loadingLabs[lab.id]
-                    }
+                    onClick={() => startLab(lab)}
+                    disabled={loadingLabs[lab.id]} // Keeps trigger functional to capture alert logic
                   >
                     {loadingLabs[lab.id] ? (
                       "Starting..."
@@ -380,9 +415,7 @@ function Ctf() {
                 ) : (
                   <button
                     className="stop-btn"
-                    onClick={() =>
-                      stopLab(lab)
-                    }
+                    onClick={() => stopLab(lab)}
                   >
                     <Square size={18} />
                     Stop Lab

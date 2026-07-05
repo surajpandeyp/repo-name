@@ -4,6 +4,7 @@ const conn = require("../db")
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const auth = require("./midd");
+const bcrypt = require('bcrypt');
 
 const docker = new Docker({
     socketPath: "/var/run/docker.sock"
@@ -13,132 +14,100 @@ const docker = new Docker({
 // login api
 //============
 
-router.post("/login", function (req, res) {
-
-    const email = req.body.email;
-    const password = req.body.password;
+router.post("/login", async (req, res) => { // async add kiya
+    const { email, password } = req.body;
 
     if (!email || !password) {
-
         return res.status(400).json({
             success: false,
             message: "Email and Password Required"
         });
-
     }
-      
-    const sql =
-        "SELECT * FROM users WHERE email = ?";
 
-    conn.query(
-        sql,
-        [email],
-        function (err, results) {
+    const sql = "SELECT * FROM users WHERE email = ?";
 
-            if (err) {
-
-                return res.status(500).json({
-                    success: false,
-                    error: err.message
-                });
-
-            }
-
-            if (results.length === 0) {
-
-                return res.status(401).json({
-                    success: false,
-                    message: "Invalid Email"
-                });
-
-            }
-
-            const user = results[0];
-            
-            const token = jwt.sign(
-                {id:user.id,email:user.email},
-                "suraj123456",
-                {expiresIn:"1h"}
-            )
-            if (user.password !== password) {
-
-                return res.status(401).json({
-                    success: false,
-                    message: "Invalid Password"
-                });
-
-            }
-
-            res.json({
-                success: true,
-                message: "Login Successful",
-                token,
-                user: {
-                    id: user.id,
-                    username: user.username,
-                    email: user.email
-                }
-            });
-            
+    conn.query(sql, [email], async (err, results) => { // async yaha bhi
+        if (err) {
+            return res.status(500).json({ success: false, error: err.message });
         }
-    );
 
+        if (results.length === 0) {
+            return res.status(401).json({ success: false, message: "Invalid Email or Password" });
+        }
+
+        const user = results[0];
+
+        // Bcrypt se password verify karo
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+            return res.status(401).json({
+                success: false,
+                message: "Invalid Email or Password"
+            });
+        }
+
+        // Token generate karo
+        const token = jwt.sign(
+            { id: user.id, email: user.email },
+            "suraj123456", // Note: Secret key ko .env mein rakhna chahiye
+            { expiresIn: "1h" }
+        );
+
+        res.json({
+            success: true,
+            message: "Login Successful",
+            token,
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email
+            }
+        });
+    });
 });
 
 
-router.post("/register", (req, res) => {
-
+router.post("/register", async (req, res) => {
     const { username, email, password, cpassword } = req.body;
 
+    // 1. Basic Fields Check
     if (!username || !email || !password || !cpassword) {
-        return res.status(400).json({
-            message: "All fields are required"
-        });
+        return res.status(400).json({ message: "All fields are required" });
     }
 
+    // 2. Password Match Check
     if (password !== cpassword) {
-        return res.status(400).json({
-            message: "Passwords do not match"
+        return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+    // 3. Password Complexity Validation (Regex)
+    const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])(?=.*[A-Z]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+        return res.status(400).json({ 
+            message: "Password must be at least 8 chars long, contain 1 uppercase, 1 number, and 1 special character." 
         });
     }
 
     const checkmailid = "SELECT * FROM users WHERE email = ?";
 
-    conn.query(checkmailid, [email], (err, result) => {
+    conn.query(checkmailid, [email], async (err, result) => {
+        if (err) return res.status(500).json({ message: "Database error" });
+        if (result.length > 0) return res.status(400).json({ message: "Email already registered" });
 
-        if (err) {
-            return res.status(500).json({
-                message: "Database error"
-            });
-        }
+        // 4. Password Hashing (Bcrypt)
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        if (result.length > 0) {
-            return res.status(400).json({
-                message: "Email already registered"
-            });
-        }
+        // Note: 'cpassword' save karne ki zaroorat nahi hai database mein
+        const sql = "INSERT INTO users (username, email, password) VALUES (?, ?, ?)";
 
-        const sql =
-            "INSERT INTO users (username, email, password, cpassword) VALUES (?, ?, ?, ?)";
-
-        conn.query(sql, [username, email, password, cpassword], (err, result) => {
-
-            if (err) {
-                return res.status(500).json({
-                    message: "Database error"
-                });
-            }
-
-            return res.status(201).json({
-                message: "User registered successfully"
-            });
-
+        conn.query(sql, [username, email, hashedPassword], (err, result) => {
+            if (err) return res.status(500).json({ message: "Database error" });
+            return res.status(201).json({ message: "User registered successfully" });
         });
-
     });
-
 });
-
 
 
 // =====================================

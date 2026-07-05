@@ -1,0 +1,109 @@
+/* --- Global Container --- */
+.lab-detail-container {
+  max-width: 700px;
+  margin: 30px auto;
+  padding: 20px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- Typography --- */
+.lab-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 25px;
+}
+
+.card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 10px;
+}
+
+.card-text {
+  color: #64748b;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+/* --- Cards --- */
+.card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 15px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 10px;
+}
+
+.card-header h3 {
+  font-size: 1.2rem;
+  color: #0f172a;
+  margin: 0;
+}
+
+/* --- Buttons --- */
+.btn-start, .btn-stop, .btn-submit, .btn-vpn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-size: 0.9rem;
+}
+
+.btn-start { background: #8b5cf6; color: #ffffff; }
+.btn-start:hover { background: #7c3aed; }
+
+.btn-stop { background: #ef4444; color: white; }
+
+.btn-submit { 
+  background: #059669; 
+  color: white; 
+  width: 100%; 
+  padding: 10px; 
+}
+
+.btn-vpn { 
+  background: #3b82f6; 
+  color: white; 
+  margin-top: 10px; 
+}
+
+/* --- Inputs --- */
+.flag-input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.flag-input:focus { border-color: #8b5cf6; outline: none; }
+
+/* --- Utility/States --- */
+.ip-display {
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  color: #059669;
+  margin: 10px 0;
+}
+
+input:disabled, button:disabled {
+  background-color: #f1f5f9;
+  cursor: not-allowed;
+  opacity: 0.6;
+}

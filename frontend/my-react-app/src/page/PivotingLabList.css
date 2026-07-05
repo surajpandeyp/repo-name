@@ -1,0 +1,56 @@
+/* Background setup */
+.labs-container {
+  background-color: #0b0e14; /* Deep dark blue-black */
+  min-height: 100vh;
+  padding: 40px 60px;
+  color: #ffffff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1 { font-size: 2rem; margin-bottom: 5px; }
+p { color: #8892b0; margin-bottom: 30px; }
+
+/* Table styling */
+.lab-row {
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #1e2533;
+  transition: background 0.2s ease;
+  cursor: pointer;
+}
+
+.lab-row:hover {
+  background-color: #161b26;
+}
+
+.header-row {
+  color: #5c687e;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 2px solid #1e2533;
+  cursor: default;
+}
+
+.header-row:hover { background-color: transparent; }
+
+.column { flex: 1; }
+
+/* Badge styling */
+.diff-badge {
+  background: rgba(0, 255, 170, 0.1);
+  color: #00ffaa;
+  padding: 5px 12px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  border: 1px solid rgba(0, 255, 170, 0.2);
+}
+
+/* Progress Circle */
+.progress-circle {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #5c687e;
+  border-radius: 50%;
+}
