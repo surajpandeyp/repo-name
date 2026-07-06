@@ -12,7 +12,8 @@ app.use("/reset-password", require("./routes/passwordReset"))
 app.use("/subcriptions",  require("./routes/subscriptions"))
 app.use("/web",  require("./routes/web"))
 app.use("/ctf", require("./routes/ctf"))
-app.use("/test", require("./routes/test"));
+app.use("/test-ctf", require("./routes/test"));
+app.use("/test-pivot", require("./routes/test-piv"));
 
 
 app.listen(3000, () => {

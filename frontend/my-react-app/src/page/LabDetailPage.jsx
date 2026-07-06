@@ -8,64 +8,41 @@ function LabDetailPage() {
   const navigate = useNavigate();
   const lab = allLabs.find((l) => String(l.id) === String(id));
   
-  
-
-  // States
   const [isStarted, setIsStarted] = useState(false);
   const [machineIp, setMachineIp] = useState("");
   const [userFlag, setUserFlag] = useState("");
   const [flagStatus, setFlagStatus] = useState("");
   const [loading, setLoading] = useState(false);
+  const [stopLoading, setStopLoading] = useState(false);
 
-  // 1. Auth & Status Check
- const isInitialized = useRef(false); // Ref banaya
+  const isInitialized = useRef(false);
 
-useEffect(() => {
-  // Agar pehle chal chuka hai, toh dobara mat chalao
-  if (isInitialized.current) return;
+  useEffect(() => {
+    if (isInitialized.current) return;
+    const init = async () => {
+      isInitialized.current = true;
+      const token = localStorage.getItem("token");
+      if (!token) { navigate("/"); return; }
+      try {
+        const authRes = await fetch("http://localhost:3000/pivoting/auth", {
+          method: "POST",
+          headers: { Authorization: "Bearer " + token }
+        });
+        if (authRes.status === 401) { navigate("/"); return; }
+        const statusRes = await fetch(`http://localhost:3000/${lab.category}/status`, {
+          headers: { Authorization: "Bearer " + token }
+        });
+        const statusData = await statusRes.json();
+        if (statusData.success && statusData.running && String(statusData.labId) === String(id)) {
+          setIsStarted(true);
+          setMachineIp(statusData.ip);
+        }
+      } catch (err) { console.error("Init Error:", err); }
+    };
+    init();
+    return () => { isInitialized.current = false; };
+  }, [id, navigate]);
 
-  const init = async () => {
-    isInitialized.current = true; // Mark as initialized
-    
-    const token = localStorage.getItem("token");
-    if (!token) { navigate("/"); return; }
-
-    try {
-      // 1. Subscription Check
-      
-
-      // 2. Auth Check
-      const authRes = await fetch("http://localhost:3000/pivoting/auth", {
-        method: "POST",
-        headers: { Authorization: "Bearer " + token }
-      });
-      
-      if (authRes.status === 401) { 
-        navigate("/"); 
-        return; 
-      }
-
-      // 3. Status Check
-      const statusRes = await fetch("http://localhost:3000/test/status", {
-        headers: { Authorization: "Bearer " + token }
-      });
-      const statusData = await statusRes.json();
-      
-      if (statusData.success && statusData.running && String(statusData.labId) === String(id)) {
-        setIsStarted(true);
-        setMachineIp(statusData.ip);
-      }
-    } catch (err) { 
-      console.error("Init Error:", err); 
-    }
-  };
-
-  init();
-
-  // Component unmount hone par cleanup (optional)
-  return () => { isInitialized.current = false; };
-}, [id, navigate]);
-  // 2. Start Lab
   const handleStart = async () => {
     const token = localStorage.getItem("token");
     setLoading(true);
@@ -76,35 +53,33 @@ useEffect(() => {
         body: JSON.stringify({ labId: lab.id })
       });
       const data = await res.json();
-      if (res.ok) {
+      if(res.ok && data.success){
         setIsStarted(true);
-        setMachineIp(data.ip);
-      } else {
-        alert(data.message || "Failed to start");
-      }
+        setMachineIp(data.ip)
+        alert(data.message)
+      } else { alert(data.message || "Failed to start"); }
     } catch (err) { alert("Error connecting to server"); }
     setLoading(false);
   };
 
-  // 3. Stop Lab
   const handleStop = async () => {
     const token = localStorage.getItem("token");
+    setStopLoading(true);
     try {
       const res = await fetch(`http://localhost:3000/${lab.category}/stop`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
         body: JSON.stringify({ labId: lab.id })
       });
-      if (res.ok) {
+      const data = await res.json();
+      if (res.ok && data.success) {
         setIsStarted(false);
         setMachineIp("");
-      } else {
-        alert("Failed to stop");
-      }
+      } else { alert("Failed to stop"); }
     } catch (err) { alert("Error connecting to server"); }
+    finally { setStopLoading(false); }
   };
 
-  // 4. Submit Flag
   const handleSubmitFlag = async () => {
     const token = localStorage.getItem("token");
     try {
@@ -130,10 +105,17 @@ useEffect(() => {
       </div>
 
       <div className="card">
-        <div className="card-header">
-          <h3>Lab Machine Control</h3>
+        <h3 className="card-title">Lab Machine Control</h3>
+        {/* Ye class CSS ke sath aligned hai */}
+        <div className="button-group">
+          <button className="btn-vpn" onClick={() => navigate("/vpn-downloads")}>
+            🛡️ Get VPN
+          </button>
+          
           {isStarted ? (
-            <button className="btn-stop" onClick={handleStop}>■ Stop Machine</button>
+            <button className="btn-stop" onClick={handleStop} disabled={stopLoading}>
+              {stopLoading ? "Stopping..." : "■ Stop Machine"}
+            </button>
           ) : (
             <button className="btn-start" onClick={handleStart} disabled={loading}>
               {loading ? "Starting..." : "▶ Start Machine"}
@@ -145,15 +127,9 @@ useEffect(() => {
 
       <div className="card">
         <h3 className="card-title">Submit Root Flag</h3>
-        <input 
-          className="flag-input" 
-          value={userFlag}
-          onChange={(e) => setUserFlag(e.target.value)}
-          placeholder={isStarted ? "Enter root flag..." : "Start machine first..."}
-          disabled={!isStarted} 
-        />
+        <input className="flag-input" value={userFlag} onChange={(e) => setUserFlag(e.target.value)} placeholder={isStarted ? "Enter root flag..." : "Start machine first..."} disabled={!isStarted} />
         <button className="btn-submit" onClick={handleSubmitFlag} disabled={!isStarted}>Submit Flag</button>
-        {flagStatus && <p style={{marginTop: '10px', fontSize: '0.9rem', color: '#333'}}>{flagStatus}</p>}
+        {flagStatus && <p className="flag-status">{flagStatus}</p>}
       </div>
     </div>
   );

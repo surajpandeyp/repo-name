@@ -20,16 +20,15 @@ router.get("/status", auth, async (req, res) => {
     try {
         const userId = req.user.id;
 
-        // 1. Saare running containers nikalo
+        // User ke saare running containers
         const containers = await docker.listContainers();
 
-        // 2. Sirf 'web' role wala container dhundo jo is user ka ho
-        // Naming convention: ctf_{role}_{userId}_{labId}
-        const webContainer = containers.find(c => 
+        // Sirf web container dhundo
+        const webContainer = containers.find(c =>
             c.Names.some(name => name.startsWith(`/ctf_web_${userId}_`))
         );
 
-        // Agar web container nahi milta, to lab running nahi hai
+        // Agar koi container nahi mila
         if (!webContainer) {
             return res.json({
                 success: true,
@@ -37,18 +36,23 @@ router.get("/status", auth, async (req, res) => {
             });
         }
 
-        // 3. Web container inspect karo
+        // Container inspect
         const container = docker.getContainer(webContainer.Id);
         const info = await container.inspect();
 
-        // 4. LabId nikalo (container name: ctf_web_userId_labId)
+        // Container name
         const containerName = webContainer.Names[0].replace("/", "");
-        const parts = containerName.split("_");
-        const labId = Number(parts[3]);
 
-        // 5. IP nikalo (Dynamic network support)
-        const networkNames = Object.keys(info.NetworkSettings.Networks);
-        const ip = info.NetworkSettings.Networks[networkNames[0]].IPAddress;
+        // ctf_web_5_ctf-1
+        const parts = containerName.split("_");
+
+        // labId ko string hi rakho
+        const labId = parts.slice(3).join("_");
+
+        // IP nikaalo
+        const network = Object.values(info.NetworkSettings.Networks)[0];
+
+        const ip = network ? network.IPAddress : "";
 
         return res.json({
             success: true,
@@ -65,6 +69,9 @@ router.get("/status", auth, async (req, res) => {
         });
     }
 });
+
+
+
 
 
 async function getOrCreateNetwork(networkName) {
@@ -104,7 +111,9 @@ router.post("/start", auth, async (req, res) => {
         
         // 2. Check if any container for this user is already running
         const allContainers = await docker.listContainers();
-        const existing = allContainers.find(c => c.Names.some(n => n.includes(`_${userId}_`)));
+        const existing = allContainers.find(c => c.Names.some(n => n.includes(`ctf_web_${userId}_`)));
+        console.log(existing);
+        
         
         if (existing) {
             return res.json({ success: false, message: "A lab is already running. Please stop it first." });

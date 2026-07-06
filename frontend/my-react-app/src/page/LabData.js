@@ -3,7 +3,7 @@ export const PivotingLabs = [
   { 
     id: 'pivoting-1', 
     name: 'ColdBoxEasy', 
-    category: 'pivoting',
+    category: 'test-pivot',
     difficulty: 'Fundamental', 
     os: 'Linux', 
     xp: '10', 
@@ -13,7 +13,7 @@ export const PivotingLabs = [
   { 
     id: 'pivoting-2', 
     name: 'Sams', 
-    category: 'pivoting',
+    category: 'test-pivot',
     difficulty: 'Fundamental', 
     os: 'Windows', 
     xp: '20', 
@@ -41,7 +41,18 @@ export const CtfLabs = [
   { 
     id: 'ctf-1', 
     name: 'vertex-portal-image', 
-    category: 'ctf',
+    category: 'test-ctf',
+    difficulty: 'Hard', 
+    os: 'Linux', 
+    xp: '50', 
+    users: '200',
+    description: 'A comprehensive challenge requiring diverse skill sets from crypto to web exploitation.'
+  },
+
+   { 
+    id: 'ctf-2', 
+    name: 'cmd_node', 
+    category: 'test-ctf',
     difficulty: 'Hard', 
     os: 'Linux', 
     xp: '50', 

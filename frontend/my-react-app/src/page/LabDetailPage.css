@@ -40,45 +40,55 @@
 }
 
 .card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 10px;
+  margin-bottom: 15px;
 }
 
 .card-header h3 {
   font-size: 1.2rem;
   color: #0f172a;
-  margin: 0;
+  margin: 0 0 15px 0;
 }
 
-/* --- Buttons --- */
-.btn-start, .btn-stop, .btn-submit, .btn-vpn {
-  padding: 8px 16px;
+/* --- Button Layout --- */
+.button-group {
+  display: flex;
+  justify-content: space-between; /* Buttons ko door-door rakhega */
+  align-items: center;
+  gap: 20px;
+}
+
+.btn-vpn, .btn-start, .btn-stop {
+  flex: 1; /* Dono buttons barabar width lenge */
+  padding: 12px 18px;
   border-radius: 6px;
   font-weight: 600;
   border: none;
   cursor: pointer;
   transition: background 0.2s;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  text-align: center;
 }
+
+/* --- Button Styles --- */
+.btn-vpn { background: #6366f1; color: white; }
+.btn-vpn:hover { background: #4f46e5; }
 
 .btn-start { background: #8b5cf6; color: #ffffff; }
 .btn-start:hover { background: #7c3aed; }
 
 .btn-stop { background: #ef4444; color: white; }
+.btn-stop:hover { background: #dc2626; }
 
 .btn-submit { 
   background: #059669; 
   color: white; 
   width: 100%; 
-  padding: 10px; 
-}
-
-.btn-vpn { 
-  background: #3b82f6; 
-  color: white; 
-  margin-top: 10px; 
+  padding: 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 10px;
 }
 
 /* --- Inputs --- */
@@ -87,7 +97,6 @@
   padding: 12px;
   border: 2px solid #e2e8f0;
   border-radius: 6px;
-  margin-bottom: 10px;
   font-size: 0.9rem;
   box-sizing: border-box;
 }
@@ -99,7 +108,12 @@
   font-family: 'Courier New', monospace;
   font-weight: bold;
   color: #059669;
-  margin: 10px 0;
+  margin: 15px 0 0 0;
+  background: #f0fdf4;
+  padding: 10px;
+  border-radius: 4px;
+  text-align: center;
+  border: 1px dashed #059669;
 }
 
 input:disabled, button:disabled {
