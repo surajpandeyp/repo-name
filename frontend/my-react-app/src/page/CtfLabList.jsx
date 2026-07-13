@@ -35,7 +35,7 @@ function CtfLabsList() {
     }, [navigate]);
   
   // Logic: Sirf 'pivoting' category wale labs filter karo
-  const CtfLabs = allLabs.filter(lab => lab.category === 'test-ctf');
+  const CtfLabs = allLabs.filter(lab => lab.category === 'ctf');
 
   const handleLabClick = (id) => navigate(`/labDetailPage/${id}`);
 

@@ -40,8 +40,8 @@ export const WebLabs = [
 export const CtfLabs = [
   { 
     id: 'ctf-1', 
-    name: 'vertex-portal-image', 
-    category: 'test-ctf',
+    name: 'smb_ssh_php', 
+    category: 'ctf',
     difficulty: 'Hard', 
     os: 'Linux', 
     xp: '50', 
