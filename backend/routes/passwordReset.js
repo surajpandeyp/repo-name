@@ -3,7 +3,7 @@ const express = require("express");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
 const conn = require("../db")
-
+const bcrypt = require("bcrypt");
 
 const router = express.Router()
 
@@ -100,7 +100,7 @@ router.post("/forgot-password", (req, res) => {
 
 
 
-router.get("/verify-token/:token", (req, res) => {
+router.get("/verify-token/:token",async (req, res) => {
 
     const token = req.params.token;
 
@@ -135,7 +135,7 @@ router.get("/verify-token/:token", (req, res) => {
 
 
 
-router.post("/reset-password", (req, res) => {
+router.post("/reset-password",  (req, res) => {
 
     const { token, password } = req.body;
 
@@ -145,7 +145,7 @@ router.post("/reset-password", (req, res) => {
         WHERE token = ?
         AND expires_at > NOW()`,
         [token],
-        (err, rows) => {
+        async (err, rows) => {
 
             if (err) {
                 return res.status(500).json({
@@ -162,11 +162,13 @@ router.post("/reset-password", (req, res) => {
 
             const resetRow = rows[0];
 
+             const hashedPassword = await bcrypt.hash(password,10)
+
             conn.query(
                 `UPDATE users
                  SET password = ?
                  WHERE id = ?`,
-                [password, resetRow.user_id],
+                [hashedPassword, resetRow.user_id],
                 (err) => {
 
                     if (err) {

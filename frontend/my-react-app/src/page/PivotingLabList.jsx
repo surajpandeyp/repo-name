@@ -35,7 +35,7 @@ function PivotingLabList() {
     }, [navigate]);
   
   // Logic: Sirf 'pivoting' category wale labs filter karo
-  const pivotingLabs = allLabs.filter(lab => lab.category === 'pivoting');
+  const pivotingLabs = allLabs.filter(lab => lab.category === 'test-pivot');
 
   const handleLabClick = (id) => navigate(`/labDetailPage/${id}`);
 

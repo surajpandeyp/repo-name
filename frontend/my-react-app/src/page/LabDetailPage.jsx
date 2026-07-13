@@ -7,6 +7,8 @@ function LabDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const lab = allLabs.find((l) => String(l.id) === String(id));
+
+  
   
   const [isStarted, setIsStarted] = useState(false);
   const [machineIp, setMachineIp] = useState("");
