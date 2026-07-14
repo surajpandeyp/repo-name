@@ -14,6 +14,10 @@ app.use("/web",  require("./routes/web"))
 app.use("/ctf", require("./routes/ctf"))
 app.use("/test-pivot", require("./routes/test-piv"));
 
+// for flag
+
+app.use("/ctf", require("./routes/ctf_flag"))
+
 
 app.listen(3000, () => {
     console.log("Server Running on Port 3000");

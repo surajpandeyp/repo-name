@@ -58,7 +58,7 @@ function LabDetailPage() {
       if(res.ok && data.success){
         setIsStarted(true);
         setMachineIp(data.ip)
-        alert(data.message)
+        
       } else { alert(data.message || "Failed to start"); }
     } catch (err) { alert("Error connecting to server"); }
     setLoading(false);
@@ -85,7 +85,7 @@ function LabDetailPage() {
   const handleSubmitFlag = async () => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch("http://192.168.86.138:3000/flag/verify", {
+      const res = await fetch(`http://192.168.86.138:3000/${lab.category}/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
         body: JSON.stringify({ labId: lab.id, userFlag })

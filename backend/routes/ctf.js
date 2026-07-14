@@ -85,115 +85,216 @@ router.get("/subcribe", auth, async(req, res) => {
 });
 
 // ==================== 3. START API ====================
+
 router.post("/start", auth, async (req, res) => {
     try {
+      
         const { labId } = req.body;
         const userId = req.user.id;
 
-        // 1. Database Checks
-        const findId = await query("SELECT * FROM ctf WHERE lab_id = ?", [labId]);
-        if (findId.length === 0) return res.json({ message: "Lab not found" });
-        
-        if (!findId[0].is_free) {
-            const sub = await query("SELECT * FROM subscriptions WHERE user_id = ? AND expiry_date > NOW()", [userId]);
-            if (!sub.length) return res.json({ message: "Subscription required" });
-        }
-        
-        // 2. Check if any container for this user is already running
-        const allContainers = await docker.listContainers();
-        const existing = allContainers.find(c => c.Names.some(n => n.includes(`_user_${userId}_`)));
-        
-        if (existing) {
-            return res.json({ success: false, message: "A lab is already running. Please stop it first." });
+        // -------------------------
+        // Check Lab
+        // -------------------------
+        const lab = await query(
+            "SELECT * FROM ctf WHERE lab_id=?",
+            [labId]
+        );
+
+        if (!lab.length) {
+            return res.json({
+                success: false,
+                message: "Lab not found"
+            });
         }
 
-        // 3. Networks Fetch Aur Create
-        const labNetworks = await query("SELECT * FROM ctftwo_networks WHERE lab_id = ?", [labId]);
-        if (!labNetworks.length) return res.json({ message: "Network configurations not found" });
+        // -------------------------
+        // Subscription Check
+        // -------------------------
+        if (!lab[0].is_free) {
 
-        for (const net of labNetworks) {
-            const userNetworkName = `${net.network_name}_user_${userId}_${labId}`;
-            const networks = await docker.listNetworks();
-            const existingNet = networks.find(n => n.Name === userNetworkName);
-            
-            if (!existingNet) {
-                await docker.createNetwork({
-                    Name: userNetworkName,
-                    Driver: "bridge",
-                    IPAM: {
-                        Config: [{ Subnet: net.subnet, Gateway: net.gateway }]
-                    }
+            const sub = await query(
+                "SELECT * FROM subscriptions WHERE user_id=? AND expiry_date > NOW()",
+                [userId]
+            );
+
+            if (!sub.length) {
+
+                return res.json({
+                    success: false,
+                    message: "Subscription required"
                 });
+
             }
         }
 
-        // 4. Get containers specs from pivoting_containers table
-        const containerSpecs = await query("SELECT container_name, role, network_name FROM ctf_containers WHERE lab_id = ?", [labId]);
-        if (!containerSpecs.length) return res.json({ message: "Containers not found for this lab" });
+        // -------------------------
+        // Existing Container Check
+        // -------------------------
+        const running = await docker.listContainers();
+
+        const alreadyRunning = running.find(c =>
+            c.Names.some(n => n.includes(`_user_${userId}_`))
+        );
+
+        if (alreadyRunning) {
+
+            return res.json({
+                success: false,
+                message: "Lab already running"
+            });
+
+        }
+
+        // -------------------------
+        // Create Networks
+        // -------------------------
+        const networks = await query(
+            "SELECT * FROM ctftwo_networks WHERE lab_id=?",
+            [labId]
+        );
+
+        for (const net of networks) {
+
+            const dockerNetworkName =
+                `${net.network_name}_user_${userId}_${labId}`;
+
+            const allNetworks =
+                await docker.listNetworks();
+
+            const exists =
+                allNetworks.find(n => n.Name === dockerNetworkName);
+
+            if (!exists) {
+
+                await docker.createNetwork({
+
+                    Name: dockerNetworkName,
+
+                    Driver: "bridge",
+
+                    IPAM: {
+
+                        Config: [{
+                            Subnet: net.subnet,
+                            Gateway: net.gateway
+                        }]
+
+                    }
+
+                });
+
+            }
+
+        }
+
+        // -------------------------
+        // Fetch Containers
+        // -------------------------
+        const containers = await query(
+            `SELECT container_name,
+                    role,
+                    network_name
+             FROM ctf_containers
+             WHERE lab_id=?`,
+            [labId]
+        );
+
+        if (!containers.length) {
+
+            return res.json({
+                success: false,
+                message: "No Containers Found"
+            });
+
+        }
 
         let webIp = "";
 
-        // 5. Create Aur Start Loop
-        for (const spec of containerSpecs) {
-            const containerName = `ctf_${spec.role}_user_${userId}_${labId}`;
-            const primaryNetworkName = `${spec.network_name}_user_${userId}_${labId}`;
-            
-            // Dynamic IP mapping based on role/network
-            let staticIp = "";
-            if (spec.network_name === "net_public") {
-                staticIp = "172.25.0.10"; // Public web container ka public interface IP
-            } else if (spec.network_name === "net_private") {
-                staticIp = "172.30.0.20"; // Baki internal nodes ki private IP
+        // -------------------------
+        // Start All Containers
+        // -------------------------
+        for (const spec of containers) {
+
+            const image =
+                spec.container_name.trim();
+
+            const containerName =
+                `ctf_${spec.role}_user_${userId}_${labId}`;
+
+            let networkMode = "bridge";
+
+            if (spec.network_name) {
+
+                networkMode =
+                    `${spec.network_name}_user_${userId}_${labId}`;
+
             }
 
-            const container = await docker.createContainer({
-                Image: spec.container_name,
-                name: containerName,
-                Tty: true, 
-                OpenStdin: true,
-                HostConfig: { 
-                    NetworkMode: primaryNetworkName,
-                    CapAdd: ["NET_ADMIN"]
-                },
-                NetworkingConfig: {
-                    EndpointsConfig: {
-                        [primaryNetworkName]: {
-                            IPAMConfig: { IPv4Address: staticIp }
-                        }
+            const container =
+                await docker.createContainer({
+
+                    Image: image,
+
+                    name: containerName,
+
+                    Tty: true,
+
+                    OpenStdin: true,
+
+                    HostConfig: {
+
+                        NetworkMode: networkMode,
+
+                        CapAdd: ["NET_ADMIN"]
+
                     }
-                }
-            });
+
+                });
 
             await container.start();
 
-            // ================= ASLI LOGIC CHANGE =================
-            // Agar role 'public_web' hai, toh use net_public to mil gaya, 
-            // ab use instantly net_private se bhi jodo taaki use internal range bhi mil jaye!
-            if (spec.role === "public_web") {
-                const privateNetworkName = `net_private_user_${userId}_${labId}`;
-                const privateNet = docker.getNetwork(privateNetworkName);
-                
-                await privateNet.connect({
-                    Container: container.id,
-                    EndpointConfig: {
-                        IPAMConfig: { IPv4Address: "172.30.0.10" } // public_web ka internal network IP
-                    }
-                });
+            // Public Container ki IP bhejna
+            if (
+                spec.role === "public_web" ||
+                spec.role === "web"
+            ) {
 
-                // User ko response bhejne ke liye public network wali IP uthao
-                const info = await container.inspect();
-                webIp = info.NetworkSettings.Networks[primaryNetworkName].IPAddress;
+                const info =
+                    await container.inspect();
+
+                webIp =
+                    info.NetworkSettings.Networks[networkMode].IPAddress;
+
             }
+
         }
 
-        return res.json({ success: true, message: "Pivoting lab started successfully", ip: webIp });
+        return res.json({
 
-    } catch (err) {
+            success: true,
+
+            message: "CTF Started Successfully",
+
+            ip: webIp
+
+        });
+
+    }
+
+    catch (err) {
+
         console.error(err);
-        return res.status(500).json({ success: false, message: err.message });
+
+        return res.status(500).json({
+
+            success: false,
+
+            message: err.message
+
+        });
+
     }
 });
-
 // ==================== 4. STOP API ====================
 // Chhota sa helper function jo Docker API ko saans lene ka time dega
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -222,7 +323,7 @@ router.post("/stop", auth, async (req, res) => {
                     console.error(`Error removing container ${containerName}:`, err);
                 }
             }
-        }   
+        }
 
         // 2. Chhota sa pause networks delete karne se pehle
         await delay(500);
