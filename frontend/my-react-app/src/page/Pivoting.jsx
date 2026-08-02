@@ -77,7 +77,7 @@ function Pivoting() {
         const token = localStorage.getItem("token");
 
         const res = await fetch(
-          "http://localhost:3000/pivoting/auth",
+          "/api/pivoting/auth",
           {
             method: "POST",
             headers: {
@@ -124,7 +124,7 @@ function Pivoting() {
       }));
 
       const res = await fetch(
-        "http://192.168.86.138:3000/flag/verify",
+        "/api/flag/verify",
         {
           method: "POST",
           headers: {
@@ -168,7 +168,7 @@ function Pivoting() {
 
     try {
       const res = await fetch(
-        "http://localhost:3000/pivoting/start/",
+        "/api/pivoting/start/",
         {
           method: "POST",
           headers: {
@@ -212,9 +212,9 @@ function Pivoting() {
 
     try {
       await fetch(
-        "http://localhost:3000/pivoting/stop/",
+        "/pivoting/stop/",
         {
-          method: "POST",
+          method:"POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: "Bearer " + token,

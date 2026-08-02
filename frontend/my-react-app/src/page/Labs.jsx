@@ -66,7 +66,7 @@ function Labs() {
         const token = localStorage.getItem("token");
 
         const res = await fetch(
-          "http://localhost:3000/api/pivoting/auth",
+          "/api/pivoting/auth",
           {
             method: "POST",
             headers: {

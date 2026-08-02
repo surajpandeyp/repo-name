@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/pivoting", require("./routes/docker"));
-app.use("/api/reset-password", require("./routes/passwordReset"))
+app.use("/api", require("./routes/passwordReset"))
 app.use("/api/subcriptions",  require("./routes/subscriptions"))
 app.use("/api/web",  require("./routes/web"))
 app.use("/api/ctf", require("./routes/ctf"))

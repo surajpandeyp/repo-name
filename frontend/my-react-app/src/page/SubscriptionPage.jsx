@@ -11,7 +11,7 @@ function SubscriptionPage() {
     const fetchSubscription = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:3000/api/my-subscription", {
+        const res = await fetch("/api/my-subscription", {
           method: "GET",
           headers: {
             Authorization: "Bearer " + token,

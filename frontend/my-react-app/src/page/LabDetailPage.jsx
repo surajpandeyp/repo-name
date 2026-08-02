@@ -34,12 +34,12 @@ function LabDetailPage() {
       const token = localStorage.getItem("token");
       if (!token) { navigate("/"); return; }
       try {
-        const authRes = await fetch("http://localhost:3000/api/pivoting/auth", {
+        const authRes = await fetch("/api/pivoting/auth", {
           method: "POST",
           headers: { Authorization: "Bearer " + token }
         });
         if (authRes.status === 401) { navigate("/"); return; }
-        const statusRes = await fetch(`http://localhost:3000/api/${lab.category}/status`, {
+        const statusRes = await fetch(`/api/${lab.category}/status`, {
           headers: { Authorization: "Bearer " + token }
         });
         const statusData = await statusRes.json();
@@ -57,7 +57,7 @@ function LabDetailPage() {
     const token = localStorage.getItem("token");
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:3000/api/${lab.category}/start`, {
+      const res = await fetch(`/api/${lab.category}/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
         body: JSON.stringify({ labId: lab.id })
@@ -79,7 +79,7 @@ function LabDetailPage() {
     const token = localStorage.getItem("token");
     setStopLoading(true);
     try {
-      const res = await fetch(`http://localhost:3000/api/${lab.category}/stop`, {
+      const res = await fetch(`/api/${lab.category}/stop`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
         body: JSON.stringify({ labId: lab.id })
@@ -96,7 +96,7 @@ function LabDetailPage() {
   const handleSubmitFlag = async () => {
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`http://192.168.86.138:3000/api/${lab.category}/verify`, {
+      const res = await fetch(`/api/${lab.category}/verify`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: "Bearer " + token },
         body: JSON.stringify({ labId: lab.id, userFlag })

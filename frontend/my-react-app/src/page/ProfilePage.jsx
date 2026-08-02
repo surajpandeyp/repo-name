@@ -22,7 +22,7 @@ const ProfilePage = () => {
       const token = localStorage.getItem("token");
       
       try {
-        const res = await fetch("http://localhost:3000/api/profile", {
+        const res = await fetch("/api/profile", {
           method: "GET",
           headers: {
             Authorization: "Bearer " + token, 

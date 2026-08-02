@@ -27,7 +27,7 @@ function CtfLabsList() {
 
         // --- STEP A: AUTH CHECK ---
         const authRes = await fetch(
-          "http://localhost:3000/api/pivoting/auth",
+          "/api/pivoting/auth",
           {
             method: "POST",
             headers: {
@@ -46,7 +46,7 @@ function CtfLabsList() {
         // --- STEP B: LIVE DATA FETCH FROM BACKEND ---
         const labIds = CtfLabs.map(lab => lab.id);
 
-        const liveRes = await fetch("http://localhost:3000/api/verify", {
+        const liveRes = await fetch("/api/verify", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

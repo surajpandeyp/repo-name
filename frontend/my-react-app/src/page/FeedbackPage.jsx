@@ -20,7 +20,7 @@ function FeedbackPage() {
       
         // Jab backend API ready ho jaye, toh is code ko uncomment kar dena:
         const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:3000/api/feedback", {
+        const response = await fetch("/api/feedback", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

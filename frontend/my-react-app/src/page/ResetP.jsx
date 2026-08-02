@@ -22,7 +22,7 @@ function ResetPassword() {
     try {
 
       const res = await fetch(
-        `http://localhost:3000/reset-password/verify-token/${token}`
+        `/api/verify-token/${token}`
       );
 
       const data = await res.json();
@@ -70,7 +70,7 @@ function ResetPassword() {
     try {
 
       const res = await fetch(
-        "http://localhost:3000/reset-password/reset-password",
+        "/api/reset-password",
         {
           method: "POST",
           headers: {

@@ -48,7 +48,7 @@ function Register() {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/pivoting/register", {
+      const res = await fetch("/api/pivoting/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

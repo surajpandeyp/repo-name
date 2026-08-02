@@ -19,7 +19,7 @@ function ForgotPassword() {
     try {
 
       const res = await fetch(
-        "http://localhost:3000/reset-password/forgot-password",
+        "/reset-password/forgot-password",
         {
           method: "POST",
           headers: {

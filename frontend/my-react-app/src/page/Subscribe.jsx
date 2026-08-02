@@ -48,7 +48,7 @@ function Subscribe() {
         localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:3000/subcriptions/creat-order",
+        "/api/subcriptions/creat-order",
         {
           method: "POST",
 
@@ -102,7 +102,7 @@ function Subscribe() {
 
               const verifyRes =
                 await fetch(
-                  "http://localhost:3000/subcriptions/verify-payment",
+                  "/api/subcriptions/verify-payment",
                   {
                     method: "POST",
 
