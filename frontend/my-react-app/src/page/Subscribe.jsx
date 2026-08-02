@@ -208,7 +208,7 @@ function Subscribe() {
 
         <div className="price">
 
-          ₹499
+          ₹200
 
           <span>
             /month

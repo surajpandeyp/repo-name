@@ -24,12 +24,23 @@ function Navbar() {
 
   return (
     <div className="navbar">
-      <div className="logo" onClick={() => navigate("/")}>🔐 HackRange</div>
-      <div className="nav-links">
-        <span onClick={() => navigate("/vpn")}>VPN</span>
-        <span onClick={() => navigate("/labs")}>All Labs</span>
-        <span onClick={() => navigate("/subscribe")}>Subscription</span>
+      {/* Premium Cyber Terminal Logo Structure */}
+      <div className="logo-container" onClick={() => navigate("/")}>
+        <div className="cyber-terminal-logo">
+          <span className="terminal-prompt">&gt;_</span>
+        </div>
+        <span className="brand-name">
+          Hack<span className="brand-accent">Range</span>
+        </span>
       </div>
+
+      <div className="nav-links">
+        <span onClick={() => navigate("/vpn-setup")}>VPN-Setup</span>
+        <span onClick={() => navigate("/labs")}>All Labs</span>
+        <span onClick={() => navigate("/subcribe")}>Subscription</span>
+        <span onClick={() => navigate("/About")}>About-labs</span>
+      </div>
+
       <div className="user-box" ref={menuRef}>
         <div className="user-info">👋 {user?.username || "Guest"}</div>
         <div className="avatar" onClick={() => setOpen(!open)}>
@@ -38,13 +49,15 @@ function Navbar() {
         {open && (
           <div className="dropdown">
             <div className="dropdown-header">
-              <div className="avatar large">{user?.username.charAt(0).toUpperCase()}</div>
-              <div><h4>{user?.username}</h4></div>
+              <div className="avatar large">{user?.username ? user.username.charAt(0).toUpperCase() : "G"}</div>
+              <div><h4>{user?.username || "Guest"}</h4></div>
             </div>
-            <hr />
+            <hr />  
             <div className="dropdown-item" onClick={() => navigate("/profile")}>👤 Profile</div>
-            <div className="dropdown-item" onClick={() => navigate("/sending")}>📤 Sending</div>
+            <div className="dropdown-item" onClick={() => navigate("/sending")}>📤 Sending</div>    
             <div className="dropdown-item" onClick={() => navigate("/settings")}>⚙ Settings</div>
+            <div className="dropdown-item" onClick={() => navigate("/ssueForm")}>📤 Support</div>
+            <div className="dropdown-item" onClick={() => navigate("/subcriptionpage")}>📅 Billing history</div>
             <hr />
             <div className="dropdown-item logout" onClick={logout}>🚪 Logout</div>
           </div>
@@ -53,4 +66,5 @@ function Navbar() {
     </div>
   );
 }
+
 export default Navbar;

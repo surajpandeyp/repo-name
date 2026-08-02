@@ -2,6 +2,7 @@
 export const PivotingLabs = [
   { 
     id: 'pivoting-1', 
+    premium:'Free',
     name: 'ColdBoxEasy', 
     category: 'test-pivot',
     difficulty: 'Fundamental', 
@@ -11,7 +12,8 @@ export const PivotingLabs = [
     description: 'A beginner-friendly Linux lab focused on basic enumeration and privilege escalation techniques.'
   },
   { 
-    id: 'pivoting-2', 
+    id: 'pivoting-2',
+    premium:'VIP', 
     name: 'Sams', 
     category: 'test-pivot',
     difficulty: 'Fundamental', 
@@ -24,22 +26,35 @@ export const PivotingLabs = [
 
 // Web Labs
 export const WebLabs = [
-  { 
-    id: 'web-1', 
-    name: 'SQL Injection Lab', 
+  
+
+   {
+    id: 'web-1',
+    premium: 'Free',
+    name: 'SQL Injection Lab',
     category: 'web',
-    difficulty: 'Easy', 
-    os: 'Linux', 
-    xp: '15', 
+    difficulty: 'Easy',
+    os: 'Linux',
+    xp: '15',
     users: '850',
-    description: 'Master the art of SQL Injection by exploiting vulnerable web forms.'
-  }
+    description: 'Master the art of SQL Injection by exploiting vulnerable web forms.',
+    
+    // Naye fields yaha add karo:
+    about: 'Master the art of SQL Injection by exploiting vulnerable web forms.',
+    objectives: [
+      'Discover hidden directories and enumerate target applications for user accounts.',
+      'Use specialized techniques to uncover credentials and system weaknesses.',
+      'Gain initial access and escalate privileges to obtain root access.'
+    ],
+    labDescription: 'In this lab, you will systematically evaluate environment configurations, uncover vulnerabilities, and exploit flaws to successfully retrieve target flags securely.'
+  },
 ];
 
 // CTF Labs
 export const CtfLabs = [
   { 
-    id: 'ctf-1', 
+    id: 'ctf-1',
+    premium:'Free', 
     name: 'smb_ssh_php', 
     category: 'ctf',
     difficulty: 'Hard', 
@@ -50,9 +65,10 @@ export const CtfLabs = [
   },
 
    { 
-    id: 'ctf-2', 
+    id: 'ctf-2',
+    premium:'VIP', 
     name: 'cmd_node', 
-    category: 'test-ctf',
+    category: 'ctf',
     difficulty: 'Hard', 
     os: 'Linux', 
     xp: '50', 

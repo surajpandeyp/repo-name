@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
@@ -7,16 +8,21 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/pivoting", require("./routes/docker"));
-app.use("/reset-password", require("./routes/passwordReset"))
-app.use("/subcriptions",  require("./routes/subscriptions"))
-app.use("/web",  require("./routes/web"))
-app.use("/ctf", require("./routes/ctf"))
-app.use("/test-pivot", require("./routes/test-piv"));
+app.use("/api/pivoting", require("./routes/docker"));
+app.use("/api/reset-password", require("./routes/passwordReset"))
+app.use("/api/subcriptions",  require("./routes/subscriptions"))
+app.use("/api/web",  require("./routes/web"))
+app.use("/api/ctf", require("./routes/ctf"))
+app.use("/api/test-pivot", require("./routes/test-piv"));
 
 // for flag
-
-app.use("/ctf", require("./routes/ctf_flag"))
+app.use("/api", require("./routes/profile"));
+//for ctf lab list ctf player score check and how many labs solved
+app.use("/api", require("./routes/ctfSolvLabs"))
+app.use("/api", require("./routes/webSolvLabs"))
+app.use("/api", require("./routes/pivotSolvLabs"))
+app.use("/api", require("./routes/subscriptionPlan"))
+app.use("/api", require("./routes/feedback"))
 
 
 app.listen(3000, () => {

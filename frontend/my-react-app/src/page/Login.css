@@ -1,91 +1,79 @@
-/* Container - screen ke top-center mein align karne ke liye */
-.container {
-  min-height: 100vh;
+/* Sirf login page ke wrapper ke liye */
+.login-page-wrapper {
+  width: 100%;
+  height: calc(100vh - 55px); /* Navbar ki height minus karke */
+  background-color: #0b1120;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 80px; 
-  background-color: #0f172a; /* Deep dark blue background */
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding-top: 15px;
+  overflow: hidden; /* Login page par scroll bilkul band */
+  box-sizing: border-box;
 }
 
-/* Login Box - Compact and Clean */
 .login-form {
-  background: white;
-  padding: 30px;
+  background: #ffffff;
+  padding: 20px 24px;
   border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
   width: 100%;
-  max-width: 360px;
+  max-width: 320px;
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
+  box-sizing: border-box;
 }
 
 .login-form h1 {
-  margin-top: 0;
-  font-size: 22px;
-  color: #333;
+  margin: 0 0 5px 0;
+  font-size: 18px;
+  color: #1e293b;
   text-align: center;
-  margin-bottom: 10px;
-}
-
-/* Input Fields */
-.input-group {
-  width: 100%;
 }
 
 .login-form input {
   width: 100%;
-  padding: 12px;
+  padding: 9px 12px;
   border: 1px solid #cbd5e1;
   border-radius: 5px;
-  font-size: 15px;
+  font-size: 14px;
   box-sizing: border-box;
   outline: none;
-  transition: border-color 0.2s;
 }
 
 .login-form input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.15);
 }
 
-/* Button */
 .login-form button {
   width: 100%;
-  padding: 12px;
-  background-color: #2563eb;
+  padding: 10px;
+  background-color: #7c3aed;
   color: white;
   border: none;
   border-radius: 5px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
-  margin-top: 5px;
+  font-size: 14px;
+  margin-top: 2px;
 }
 
 .login-form button:hover {
-  background-color: #1d4ed8;
+  background-color: #6d28d9;
 }
 
-/* Footer Links Section */
 .footer-links {
-  margin-top: 15px;
+  margin-top: 5px;
   text-align: center;
-  font-size: 13px;
+  font-size: 12px;
   color: #64748b;
 }
 
-.signup-text a {
-  color: #2563eb;
+.signup-text a, .footer-links > a {
+  color: #7c3aed;
   text-decoration: none;
-  font-weight: bold;
-}
-
-.footer-links > a {
-  color: #2563eb;
-  text-decoration: none;
-  margin-top: 10px;
+  font-weight: 600;
   display: block;
+  margin-top: 4px;
 }

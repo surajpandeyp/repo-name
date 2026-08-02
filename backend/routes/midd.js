@@ -10,7 +10,7 @@ function auth(req,res,next){
     const token = header.split(" ")[1];
 
     try {
-        const user = jwt.verify(token,"suraj123456")
+        const user = jwt.verify(token, process.env.JWT_SECRET)
         req.user = user
         next();
     } catch (error) {

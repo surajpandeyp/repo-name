@@ -1,0 +1,281 @@
+/* Container and Layout Settings */
+.about-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #0b0f19; /* Deep Cyber Dark Background */
+  color: #cbd5e1;
+  font-family: 'Inter', sans-serif;
+}
+
+.about-container {
+  flex: 1;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 60px 20px;
+}
+
+/* Hero Section */
+.about-hero {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.about-hero h1 {
+  font-size: 3rem;
+  color: #ffffff;
+  font-weight: 800;
+  margin-bottom: 15px;
+  letter-spacing: -0.5px;
+}
+
+.hero-tagline {
+  font-size: 1.25rem;
+  color: #94a3b8;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Mission Section */
+.about-mission-section {
+  background: #111827;
+  border: 1px solid #1f2937;
+  padding: 40px;
+  border-radius: 12px;
+  margin-bottom: 50px;
+}
+
+.about-mission-section h2 {
+  font-size: 1.8rem;
+  color: #ffffff;
+  margin-bottom: 15px;
+}
+
+.about-mission-section p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #94a3b8;
+}
+
+/* Offerings & Features Grid */
+.about-features-section {
+  margin-bottom: 60px;
+}
+
+.about-features-section h2 {
+  font-size: 1.8rem;
+  color: #ffffff;
+  margin-bottom: 30px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.feature-card {
+  background: #111827;
+  border: 1px solid #1f2937;
+  padding: 25px;
+  border-radius: 10px;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  border-color: #3b82f6; /* Modern Blue accent on hover */
+}
+
+.feature-card h3 {
+  font-size: 1.25rem;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.feature-card p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #94a3b8;
+}
+
+/* VPN Section */
+.about-vpn-section {
+  background: #111827;
+  border: 1px solid #1f2937;
+  padding: 40px;
+  border-radius: 12px;
+  margin-bottom: 60px;
+}
+
+.about-vpn-section h2 {
+  font-size: 1.8rem;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.vpn-intro {
+  color: #94a3b8;
+  margin-bottom: 30px;
+  font-size: 1.05rem;
+}
+
+.vpn-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.vpn-step {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.step-number {
+  background: #3b82f6;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 1.1rem;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.vpn-step h4 {
+  font-size: 1.1rem;
+  color: #ffffff;
+  margin: 0 0 5px 0;
+}
+
+.vpn-step p {
+  font-size: 0.95rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.vpn-action {
+  text-align: center;
+}
+
+.vpn-redirect-btn {
+  background: #10b981; /* Green Neon */
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.vpn-redirect-btn:hover {
+  opacity: 0.9;
+}
+
+/* Footer Section */
+.platform-footer {
+  background-color: #030712; /* Darker Footer Background */
+  border-top: 1px solid #1f2937;
+  padding: 40px 20px 20px 20px;
+  margin-top: auto;
+}
+
+.footer-content {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 40px;
+}
+
+.footer-left {
+  flex: 1;
+  min-width: 280px;
+}
+
+.footer-left h3 {
+  color: #ffffff;
+  margin-bottom: 15px;
+  font-size: 1.3rem;
+}
+
+.footer-left p {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.footer-right {
+  min-width: 150px;
+}
+
+.footer-right h4 {
+  color: #ffffff;
+  margin-bottom: 15px;
+}
+
+.footer-right ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-right ul li {
+  margin-bottom: 10px;
+}
+
+.footer-right ul li a {
+  color: #94a3b8;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+}
+
+.footer-right ul li a:hover {
+  color: #3b82f6;
+}
+
+.footer-divider {
+  border: 0;
+  border-top: 1px solid #1f2937;
+  max-width: 1100px;
+  margin: 30px auto 20px auto;
+}
+
+.footer-bottom {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.copyright {
+  color: #64748b;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.creator-tag {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.creator-name {
+  color: #10b981; /* Green Neon Signature */
+  font-weight: 700;
+}

@@ -16,7 +16,7 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:3000/pivoting/login", {
+      const res = await fetch("http://localhost:3000/api/pivoting/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -36,7 +36,7 @@ function Login() {
   };
 
   return (
-    <div className="container">
+    <div className="login-page-wrapper">
       <form className="login-form" onSubmit={handleSubmit}>
         <h1>Login</h1>
 

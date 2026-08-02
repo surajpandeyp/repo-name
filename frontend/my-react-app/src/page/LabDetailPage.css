@@ -1,32 +1,104 @@
-/* --- Global Container --- */
-.lab-detail-container {
-  max-width: 700px;
-  margin: 30px auto;
-  padding: 20px;
+/* --- Global Reset --- */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
   background-color: #f8fafc;
-  min-height: 100vh;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  overflow-x: hidden;
 }
 
-/* --- Typography --- */
+/* --- Screen & Scroll Lock for Lab Page --- */
+body:has(.lab-page-wrapper),
+html:has(.lab-page-wrapper) {
+  height: 100vh;
+  overflow: hidden;
+}
+
+#root, 
+.App {
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+/* --- Wrapper Lock --- */
+.lab-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-height: 100vh;
+  background-color: #f8fafc;
+  overflow: hidden;
+}
+
+/* --- Top Navigation Bar --- */
+.lab-top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 0 25px;
+  height: 55px;
+  flex-shrink: 0;
+  z-index: 100;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.app-brand {
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 0.95rem;
+  margin-right: 15px;
+}
+
+.nav-tab {
+  background: transparent;
+  border: none;
+  font-size: 0.9rem;
+  color: #64748b;
+  cursor: pointer;
+  padding: 16px 8px;
+  font-weight: 500;
+  position: relative;
+}
+
+.nav-tab.active {
+  color: #7c3aed;
+  font-weight: 600;
+}
+
+.nav-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #7c3aed;
+}
+
+/* --- Main Layout Container (Scrollable Area) --- */
+.lab-detail-container {
+  max-width: 900px;
+  width: 100%;
+  margin: 15px auto;
+  padding: 0 20px 40px 20px;
+  box-sizing: border-box;
+  flex: 1;
+  overflow-y: auto !important; /* Yahan scrolling enable kar di hai */
+}
+
 .lab-title {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: #1e293b;
-  margin-bottom: 25px;
-}
-
-.card-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #334155;
-  margin-bottom: 10px;
-}
-
-.card-text {
-  color: #64748b;
-  line-height: 1.5;
-  font-size: 0.9rem;
+  margin-bottom: 15px;
 }
 
 /* --- Cards --- */
@@ -34,90 +106,291 @@
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 15px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  box-sizing: border-box;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
-.card-header {
-  margin-bottom: 15px;
-}
-
-.card-header h3 {
-  font-size: 1.2rem;
-  color: #0f172a;
-  margin: 0 0 15px 0;
-}
-
-/* --- Button Layout --- */
-.button-group {
+/* --- Briefing Banner Card --- */
+.briefing-banner-card {
   display: flex;
-  justify-content: space-between; /* Buttons ko door-door rakhega */
+  justify-content: space-between;
   align-items: center;
-  gap: 20px;
 }
 
-.btn-vpn, .btn-start, .btn-stop {
-  flex: 1; /* Dono buttons barabar width lenge */
-  padding: 12px 18px;
-  border-radius: 6px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s;
+.briefing-banner-info h3 {
+  margin: 0 0 2px 0;
   font-size: 0.95rem;
-  text-align: center;
+  color: #1e293b;
+  font-weight: 700;
 }
 
-/* --- Button Styles --- */
-.btn-vpn { background: #6366f1; color: white; }
-.btn-vpn:hover { background: #4f46e5; }
+.briefing-banner-info p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #64748b;
+}
 
-.btn-start { background: #8b5cf6; color: #ffffff; }
-.btn-start:hover { background: #7c3aed; }
-
-.btn-stop { background: #ef4444; color: white; }
-.btn-stop:hover { background: #dc2626; }
-
-.btn-submit { 
-  background: #059669; 
-  color: white; 
-  width: 100%; 
-  padding: 12px;
+.btn-view-briefing {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 6px 14px;
   border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background 0.2s;
+}
+
+.btn-view-briefing:hover {
+  background: #f1f5f9;
+}
+
+/* --- Machine Control Card --- */
+.machine-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.machine-name {
+  font-weight: 700;
+  color: #1e293b;
+  font-size: 0.9rem;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #10b981;
+  border-radius: 50%;
+}
+
+.machine-action-area {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.target-select {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #fff;
+  color: #334155;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.btn-start {
+  background: #7c3aed;
+  color: #ffffff;
+  padding: 8px 24px;
+  border-radius: 6px;
+  font-weight: 600;
   border: none;
   cursor: pointer;
-  font-weight: 600;
-  margin-top: 10px;
+  font-size: 0.85rem;
+  transition: background 0.2s;
 }
 
-/* --- Inputs --- */
+.btn-start:hover { background: #6d28d9; }
+
+.btn-stop {
+  background: #ef4444;
+  color: white;
+  padding: 8px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.machine-subtext {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 8px 0 0 0;
+}
+
+/* --- Task / Flag Card --- */
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.task-header h3 {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #1e293b;
+}
+
+.task-status-indicator {
+  width: 12px;
+  height: 12px;
+  background: #10b981;
+  border-radius: 50%;
+}
+
+.card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 2px 0;
+}
+
+.card-text {
+  color: #64748b;
+  font-size: 0.8rem;
+  margin: 0 0 10px 0;
+}
+
+.flag-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
 .flag-input {
   width: 100%;
-  padding: 12px;
-  border: 2px solid #e2e8f0;
+  padding: 10px 40px 10px 12px;
+  border: 1px solid #cbd5e1;
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   box-sizing: border-box;
+  background: #fff;
 }
 
-.flag-input:focus { border-color: #8b5cf6; outline: none; }
+.flag-input:focus { border-color: #7c3aed; outline: none; }
 
-/* --- Utility/States --- */
+.btn-flag-submit-icon {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 2px 6px;
+}
+
+.btn-flag-submit-icon:hover {
+  color: #7c3aed;
+}
+
+/* --- Briefing Page View --- */
+.briefing-view {
+  display: flex;
+  gap: 30px;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.briefing-content {
+  flex: 1;
+}
+
+.briefing-section {
+  margin-bottom: 25px;
+}
+
+.briefing-section h2 {
+  font-size: 1.15rem;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+
+.briefing-section p, .briefing-section li {
+  color: #475569;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.briefing-section ul {
+  padding-left: 18px;
+  margin-top: 6px;
+}
+
+.briefing-sidebar {
+  width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+.briefing-sidebar a {
+  text-idname: none;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 4px 0;
+  border-left: 2px solid transparent;
+  padding-left: 8px;
+}
+
+.briefing-sidebar a:hover {
+  color: #7c3aed;
+  border-left-color: #7c3aed;
+}
+
+/* --- Utility States --- */
 .ip-display {
   font-family: 'Courier New', monospace;
   font-weight: bold;
   color: #059669;
-  margin: 15px 0 0 0;
+  margin: 10px 0 0 0;
   background: #f0fdf4;
-  padding: 10px;
+  padding: 6px;
   border-radius: 4px;
   text-align: center;
   border: 1px dashed #059669;
+  font-size: 0.8rem;
+}
+
+.flag-status {
+  margin-top: 6px;
+  font-size: 0.80rem;
+  font-weight: 600;
+  color: #059669;
 }
 
 input:disabled, button:disabled {
   background-color: #f1f5f9;
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+
+
+
+/* --- Feedback Button Styling --- */
+.feedback-btn {
+  background: #7c3aed;
+  color: #ffffff;
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.feedback-btn:hover {
+  background: #6d28d9;
+}
+
+.feedback-btn:active {
+  transform: scale(0.98);
 }

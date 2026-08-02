@@ -1,0 +1,196 @@
+.vpn-page-wrapper {
+  background-color: #f8fafc;
+  min-height: calc(100vh - 60px);
+  padding: 40px 20px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+}
+
+.vpn-container {
+  width: 100%;
+  max-width: 750px;
+}
+
+.back-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  padding: 0;
+}
+
+.back-btn:hover {
+  color: #1e293b;
+}
+
+.vpn-header {
+  margin-bottom: 24px;
+}
+
+.vpn-header h2 {
+  margin: 0 0 6px 0;
+  color: #1e293b;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.vpn-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* OS Tabs Styling */
+.os-tabs {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 12px;
+}
+
+.os-tab {
+  background: transparent;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.os-tab.active {
+  color: #7c3aed;
+  background: #f3e8ff;
+  border-bottom: 2px solid #7c3aed;
+}
+
+/* Accordion Steps */
+.steps-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.step-accordion-item {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.step-accordion-header {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  background: #ffffff;
+  transition: background 0.2s ease;
+}
+
+.step-accordion-header:hover {
+  background: #f8fafc;
+}
+
+.step-title-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.step-badge {
+  background: #f1f5f9;
+  color: #475569;
+  font-weight: 700;
+  font-size: 0.9rem;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-accordion-item.open .step-badge {
+  background: #7c3aed;
+  color: #ffffff;
+}
+
+.step-accordion-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.arrow-icon {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.step-accordion-body {
+  padding: 0 20px 20px 20px;
+  border-top: 1px solid #f1f5f9;
+  color: #475569;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.step-accordion-body p {
+  margin: 12px 0 8px 0;
+}
+
+.code-box {
+  background: #f1f5f9;
+  color: #0f172a;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 0.85rem;
+  margin: 10px 0;
+  border: 1px solid #e2e8f0;
+}
+
+.code-box-output {
+  background: #0f172a;
+  color: #38bdf8;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 0.85rem;
+  margin: 10px 0;
+}
+
+.note-text {
+  font-size: 0.85rem;
+  color: #d97706;
+  background: #fffbeb;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 10px;
+  border-left: 3px solid #f59e0b;
+}
+
+.btn-download {
+  background: #7c3aed;
+  color: #ffffff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background 0.2s ease;
+}
+
+.btn-download:hover {
+  background: #6d28d9;
+}
