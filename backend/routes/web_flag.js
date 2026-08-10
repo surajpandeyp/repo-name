@@ -13,7 +13,7 @@ function query(sql, values = []) {
     });
 }
 
-router.post("/ctf/verify", auth, async (req, res) => {
+router.post("/web/verify", auth, async (req, res) => {
 
     try {
 
@@ -30,7 +30,7 @@ router.post("/ctf/verify", auth, async (req, res) => {
 
         // Find Lab
         const findFlag = await query(
-            "SELECT * FROM ctf_flag WHERE lab_id = ?",
+            "SELECT * FROM web_flag WHERE lab_id = ?",
             [labId]
         );
 

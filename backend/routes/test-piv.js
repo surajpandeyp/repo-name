@@ -85,18 +85,19 @@ router.get("/subcribe", auth, async(req, res) => {
 });
 
 // ==================== 3. START API ====================
+
 router.post("/start", auth, async (req, res) => {
     try {
         const { labId } = req.body;
         const userId = req.user.id;
 
-        // 1. Database Checks
+        // 1. Database Checks (Lab Exist Karti Hai Ya Nahi)
         const findId = await query("SELECT * FROM pivoting WHERE lab_id = ?", [labId]);
-        if (findId.length === 0) return res.json({ message: "Lab not found" });
+        if (findId.length === 0) return res.json({ success: false, message: "Lab not found" });
         
         if (!findId[0].is_free) {
             const sub = await query("SELECT * FROM subscriptions WHERE user_id = ? AND expiry_date > NOW()", [userId]);
-            if (!sub.length) return res.json({ message: "Subscription required" });
+            if (!sub.length) return res.json({ success: false, message: "Subscription required" });
         }
         
         // 2. Check if any container for this user is already running
@@ -107,9 +108,26 @@ router.post("/start", auth, async (req, res) => {
             return res.json({ success: false, message: "A lab is already running. Please stop it first." });
         }
 
-        // 3. Networks Fetch Aur Create
+        // 3. CHECK CONTAINERS FIRST (Networks banane se PEHLE)
+        const findcontainers = await query(
+            `SELECT container_name,
+                    role,
+                    network_name
+             FROM pivoting_containers
+             WHERE lab_id=?`,
+            [labId]
+        );
+        
+        if (!findcontainers.length) {
+            return res.json({
+                success: false,
+                message: "No Containers Found"
+            });
+        }
+
+        // 4. Networks Fetch Aur Create (Containers milne ke baad)
         const labNetworks = await query("SELECT * FROM ctf_networks WHERE lab_id = ?", [labId]);
-        if (!labNetworks.length) return res.json({ message: "Network configurations not found" });
+        if (!labNetworks.length) return res.json({ success: false, message: "Network configurations not found" });
 
         for (const net of labNetworks) {
             const userNetworkName = `${net.network_name}_user_${userId}_${labId}`;
@@ -127,14 +145,10 @@ router.post("/start", auth, async (req, res) => {
             }
         }
 
-        // 4. Get containers specs from pivoting_containers table
-        const containerSpecs = await query("SELECT container_name, role, network_name FROM pivoting_containers WHERE lab_id = ?", [labId]);
-        if (!containerSpecs.length) return res.json({ message: "Containers not found for this lab" });
-
         let webIp = "";
 
         // 5. Create Aur Start Loop
-        for (const spec of containerSpecs) {
+        for (const spec of findcontainers) {
             const containerName = `ctf_${spec.role}_user_${userId}_${labId}`;
             const primaryNetworkName = `${spec.network_name}_user_${userId}_${labId}`;
             
@@ -166,9 +180,7 @@ router.post("/start", auth, async (req, res) => {
 
             await container.start();
 
-            // ================= ASLI LOGIC CHANGE =================
-            // Agar role 'public_web' hai, toh use net_public to mil gaya, 
-            // ab use instantly net_private se bhi jodo taaki use internal range bhi mil jaye!
+            // Agar role 'public_web' hai, toh use net_public ke baad net_private se bhi jodo
             if (spec.role === "public_web") {
                 const privateNetworkName = `net_private_user_${userId}_${labId}`;
                 const privateNet = docker.getNetwork(privateNetworkName);
@@ -190,7 +202,14 @@ router.post("/start", auth, async (req, res) => {
 
     } catch (err) {
         console.error(err);
-        return res.status(500).json({ success: false, message: err.message });
+        let errorMessage = err.message;
+        
+        // Agar Docker image system mein nahi hai toh clean message bhejo
+        if (err.statusCode === 404 && errorMessage.includes("no such image")) {
+            errorMessage = "The required Docker image for this lab does not exist on the server.";
+        }
+
+        return res.status(500).json({ success: false, message: errorMessage });
     }
 });
 

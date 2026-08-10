@@ -20,7 +20,7 @@ router.post("/creat-order", auth, async(req,res) =>{
 
     try {
         const options = {
-            amount:49900,
+            amount:19900,
             currency:"INR",
             receipt:"monthy_plan"
         }

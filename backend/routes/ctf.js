@@ -85,269 +85,111 @@ router.get("/subcribe", auth, async(req, res) => {
 });
 
 // ==================== 3. START API ====================
-
 router.post("/start", auth, async (req, res) => {
     try {
-      
         const { labId } = req.body;
         const userId = req.user.id;
 
-        // -------------------------
-        // Check Lab
-        // -------------------------
-        const lab = await query(
-            "SELECT * FROM ctf WHERE lab_id=?",
-            [labId]
-        );
+        if (!labId) {
+            return res.json({ success: false, message: "Required lab id" });
+        }
 
+        // 1. Check Lab exists or not
+        const lab = await query("SELECT * FROM ctf WHERE lab_id=?", [labId]);
         if (!lab.length) {
-            return res.json({
-                success: false,
-                message: "Lab not found"
-            });
+            return res.json({ success: false, message: "Lab not found" });
         }
 
-        // -------------------------
-        // Subscription Check
-        // -------------------------
+        // 2. Subscription Check
         if (!lab[0].is_free) {
-
-            const sub = await query(
-                "SELECT * FROM subscriptions WHERE user_id=? AND expiry_date > NOW()",
-                [userId]
-            );
-
+            const sub = await query("SELECT * FROM subscriptions WHERE user_id=? AND expiry_date > NOW()", [userId]);
             if (!sub.length) {
-
-                return res.json({
-                    success: false,
-                    message: "Subscription required"
-                });
-
+                return res.json({ success: false, message: "Subscription required" });
             }
         }
 
-        // -------------------------
-        // Existing Container Check
-        // -------------------------
+        // 3. Existing Container Check (Is user ka koi bhi container pehle se chal raha hai kya?)
         const running = await docker.listContainers();
-
-        const alreadyRunning = running.find(c =>
-            c.Names.some(n => n.includes(`_user_${userId}_`))
-        );
-
+        const alreadyRunning = running.find(c => c.Names.some(n => n.includes(`_user_${userId}_`)));
         if (alreadyRunning) {
-
-            return res.json({
-                success: false,
-                message: "Lab already running"
-            });
-
+            return res.json({ success: false, message: "Lab already running" });
         }
 
-        // -------------------------
-        // Create Networks
-        // -------------------------
-        const networks = await query(
-            "SELECT * FROM ctftwo_networks WHERE lab_id=?",
-            [labId]
-        );
-
-        for (const net of networks) {
-
-            const dockerNetworkName =
-                `${net.network_name}_user_${userId}_${labId}`;
-
-            const allNetworks =
-                await docker.listNetworks();
-
-            const exists =
-                allNetworks.find(n => n.Name === dockerNetworkName);
-
-            if (!exists) {
-
-                await docker.createNetwork({
-
-                    Name: dockerNetworkName,
-
-                    Driver: "bridge",
-
-                    IPAM: {
-
-                        Config: [{
-                            Subnet: net.subnet,
-                            Gateway: net.gateway
-                        }]
-
-                    }
-
-                });
-
-            }
-
-        }
-
-        // -------------------------
-        // Fetch Containers
-        // -------------------------
+        // 4. CHECK CONTAINERS FIRST (Networks banane se PEHLE)
         const containers = await query(
-            `SELECT container_name,
-                    role,
-                    network_name
-             FROM ctf_containers
-             WHERE lab_id=?`,
+            `SELECT container_name, role, network_name FROM ctf_containers WHERE lab_id = ?`,
             [labId]
-        );
-
+        ); 
+        
         if (!containers.length) {
-
             return res.json({
                 success: false,
                 message: "No Containers Found"
             });
+        }
 
+        // 5. DYNAMIC SUBNET NETWORKS CREATE KARO
+        const networks = await query("SELECT * FROM ctftwo_networks WHERE lab_id=?", [labId]);
+
+        for (const net of networks) {
+            const dockerNetworkName = `${net.network_name}_user_${userId}_${labId}`;
+            
+            // 🔥 DYNAMIC SUBNET LOGIC: Har user ke liye unique range (e.g., 172.25.5.0/24)
+            const dynamicSubnet = `172.25.${userId}.0/24`;
+            const dynamicGateway = `172.25.${userId}.1`;
+
+            const allNetworks = await docker.listNetworks();
+            const exists = allNetworks.find(n => n.Name === dockerNetworkName);
+
+            if (!exists) {
+                await docker.createNetwork({
+                    Name: dockerNetworkName,
+                    Driver: "bridge",
+                    IPAM: {
+                        Config: [{
+                            Subnet: dynamicSubnet,
+                            Gateway: dynamicGateway
+                        }]
+                    }
+                });
+            }
         }
 
         let webIp = "";
 
-        // -------------------------
-        // Start All Containers
-        // -------------------------
+        // 6. Containers Start karo
         for (const spec of containers) {
-
-            const image =
-                spec.container_name.trim();
-
-            const containerName =
-                `ctf_${spec.role}_user_${userId}_${labId}`;
-
+            const image = spec.container_name.trim();
+            const containerName = `ctf_${spec.role}_user_${userId}_${labId}`;
             let networkMode = "bridge";
 
             if (spec.network_name) {
-
-                networkMode =
-                    `${spec.network_name}_user_${userId}_${labId}`;
-
+                networkMode = `${spec.network_name}_user_${userId}_${labId}`;
             }
 
-            const container =
-                await docker.createContainer({
-
-                    Image: image,
-
-                    name: containerName,
-
-                    Tty: true,
-
-                    OpenStdin: true,
-
-                    HostConfig: {
-
-                        NetworkMode: networkMode,
-
-                        CapAdd: ["NET_ADMIN"]
-
-                    }
-
-                });
+            const container = await docker.createContainer({
+                Image: image,
+                name: containerName,
+                Tty: true,
+                OpenStdin: true,
+                HostConfig: {
+                    NetworkMode: networkMode,
+                    CapAdd: ["NET_ADMIN"]
+                }
+            });
 
             await container.start();
 
-            // Public Container ki IP bhejna
-            if (
-                spec.role === "public_web" ||
-                spec.role === "web"
-            ) {
-
-                const info =
-                    await container.inspect();
-
-                webIp =
-                    info.NetworkSettings.Networks[networkMode].IPAddress;
-
+            if (spec.role === "public_web" || spec.role === "web") {
+                const info = await container.inspect();
+                webIp = info.NetworkSettings.Networks[networkMode].IPAddress;
             }
-
         }
 
         return res.json({
-
             success: true,
-
             message: "CTF Started Successfully",
-
             ip: webIp
-
-        });
-
-    }
-
-    catch (err) {
-
-        console.error(err);
-
-        return res.status(500).json({
-
-            success: false,
-
-            message: err.message
-
-        });
-
-    }
-});
-// ==================== 4. STOP API ====================
-// Chhota sa helper function jo Docker API ko saans lene ka time dega
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-router.post("/stop", auth, async (req, res) => {
-    try {
-        const { labId } = req.body;
-        const userId = req.user.id;
-        
-        const containerSpecs = await query("SELECT role FROM ctf_containers WHERE lab_id = ?", [labId]);
-
-        // 1. Pehle saare containers ko ek-ek karke clear karo
-        for (const spec of containerSpecs) {
-            const containerName = `ctf_${spec.role}_user_${userId}_${labId}`;
-            const container = docker.getContainer(containerName);
-
-            try {
-                // Seedha force remove maaro! Alag se inspect aur stop karne ki zaroori nahi hai.
-                // v: true (volumes delete karega), force: true (agar running hai toh pehle kill karega fir remove)
-                await container.remove({ v: true, force: true });
-                
-                // Har container hatane ke baad 300ms ka chhota sa gap do taaki socket free ho jaye
-                await delay(300); 
-            } catch (err) {
-                if (err.statusCode !== 404) {
-                    console.error(`Error removing container ${containerName}:`, err);
-                }
-            }
-        }
-
-        // 2. Chhota sa pause networks delete karne se pehle
-        await delay(500);
-
-        // 3. Ab networks ko delete karo
-        const labNetworks = await query("SELECT network_name FROM ctftwo_networks WHERE lab_id = ?", [labId]);
-
-        for (const net of labNetworks) {
-            const dynamicNetworkName = `${net.network_name}_user_${userId}_${labId}`;
-            const network = docker.getNetwork(dynamicNetworkName);
-            
-            try {
-                await network.remove();
-                await delay(300); // Network remove hone ke baad bhi chhota sa pause
-            } catch (err) {
-                if (err.statusCode !== 404) {
-                    console.error(`Error removing network ${dynamicNetworkName}:`, err);
-                }
-            }
-        }
-
-        return res.json({
-            success: true,
-            message: "Pivoting lab, containers, and all user networks removed cleanly without socket errors"
         });
 
     } catch (err) {
@@ -358,4 +200,63 @@ router.post("/stop", auth, async (req, res) => {
         });
     }
 });
+
+// ==================== 4. STOP API ====================
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+router.post("/stop", auth, async (req, res) => {
+    try {
+        const { labId } = req.body;
+        const userId = req.user.id;
+        
+        const containerSpecs = await query("SELECT role FROM ctf_containers WHERE lab_id = ?", [labId]);
+
+        // 1. Saare containers ko force remove karo
+        for (const spec of containerSpecs) {
+            const containerName = `ctf_${spec.role}_user_${userId}_${labId}`;
+            const container = docker.getContainer(containerName);
+
+            try {
+                await container.remove({ v: true, force: true });
+                await delay(300); 
+            } catch (err) {
+                if (err.statusCode !== 404) {
+                    console.error(`Error removing container ${containerName}:`, err);
+                }
+            }
+        }
+
+        await delay(500);
+
+        // 2. User ke specific networks ko delete karo
+        const labNetworks = await query("SELECT network_name FROM ctftwo_networks WHERE lab_id = ?", [labId]);
+
+        for (const net of labNetworks) {
+            const dynamicNetworkName = `${net.network_name}_user_${userId}_${labId}`;
+            const network = docker.getNetwork(dynamicNetworkName);
+            
+            try {
+                await network.remove();
+                await delay(300); 
+            } catch (err) {
+                if (err.statusCode !== 404) {
+                    console.error(`Error removing network ${dynamicNetworkName}:`, err);
+                }
+            }
+        }
+
+        return res.json({
+            success: true,
+            message: "Lab, containers, and user networks removed cleanly"
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            success: false,
+            message: err.message
+        });
+    }
+});
+
 module.exports = router;

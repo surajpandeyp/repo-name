@@ -87,18 +87,15 @@ router.get("/subcribe", auth, async(req, res) => {
 // ==================== 3. START API ====================
 router.post("/start", auth, async (req, res) => {
     try {
-
         const { labId } = req.body;
         const userId = req.user.id;
 
-        // -------------------------
-        // Check Lab
-        // -------------------------
-        const lab = await query(
-            "SELECT * FROM web WHERE lab_id=?",
-            [labId]
-        );
+        if (!labId) {
+            return res.json({ success: false, message: "Required lab id" });
+        }
 
+        // 1. Check Lab
+        const lab = await query("SELECT * FROM web WHERE lab_id=?", [labId]);
         if (!lab.length) {
             return res.json({
                 success: false,
@@ -106,196 +103,143 @@ router.post("/start", auth, async (req, res) => {
             });
         }
 
-        // -------------------------
-        // Subscription Check
-        // -------------------------
+        // 2. Subscription Check
         if (!lab[0].is_free) {
-
-            const sub = await query(
-                "SELECT * FROM subscriptions WHERE user_id=? AND expiry_date > NOW()",
-                [userId]
-            );
-
+            const sub = await query("SELECT * FROM subscriptions WHERE user_id=? AND expiry_date > NOW()", [userId]);
             if (!sub.length) {
-
                 return res.json({
                     success: false,
                     message: "Subscription required"
                 });
-
             }
         }
 
-        // -------------------------
-        // Existing Container Check
-        // -------------------------
+        // 3. Existing Container Check
         const running = await docker.listContainers();
-
         const alreadyRunning = running.find(c =>
             c.Names.some(n => n.includes(`_user_${userId}_`))
         );
 
         if (alreadyRunning) {
-
             return res.json({
                 success: false,
                 message: "Lab already running"
             });
-
         }
 
-        // -------------------------
-        // Create Networks
-        // -------------------------
-        const networks = await query(
-            "SELECT * FROM web_networks WHERE lab_id=?",
-            [labId]
-        );
-
-        for (const net of networks) {
-
-            const dockerNetworkName =
-                `${net.network_name}_user_${userId}_${labId}`;
-
-            const allNetworks =
-                await docker.listNetworks();
-
-            const exists =
-                allNetworks.find(n => n.Name === dockerNetworkName);
-
-            if (!exists) {
-
-                await docker.createNetwork({
-
-                    Name: dockerNetworkName,
-
-                    Driver: "bridge",
-
-                    IPAM: {
-
-                        Config: [{
-                            Subnet: net.subnet,
-                            Gateway: net.gateway
-                        }]
-
-                    }
-
-                });
-
-            }
-
-        }
-
-        // -------------------------
-        // Fetch Containers
-        // -------------------------
+        // 4. CHECK CONTAINERS FIRST (Networks banane se pehle)
         const containers = await query(
-            `SELECT container_name,
-                    role,
-                    network_name
-             FROM web_containers
-             WHERE lab_id=?`,
+            `SELECT container_name, role, network_name FROM web_containers WHERE lab_id=?`,
             [labId]
         );
-
+        
         if (!containers.length) {
-
             return res.json({
                 success: false,
                 message: "No Containers Found"
             });
-
         }
+
+        // 5. Create Networks
+        const networks = await query("SELECT * FROM web_networks WHERE lab_id=?", [labId]);
+        
+        // for (const net of networks) {
+        //     const dockerNetworkName = `${net.network_name}_user_${userId}_${labId}`;
+        //     const allNetworks = await docker.listNetworks();
+        //     const exists = allNetworks.find(n => n.Name === dockerNetworkName);
+
+        //     if (!exists) {
+        //         await docker.createNetwork({
+        //             Name: dockerNetworkName,
+        //             Driver: "bridge",
+        //             IPAM: {
+        //                 Config: [{
+        //                     Subnet: net.subnet,
+        //                     Gateway: net.gateway
+        //                 }]
+        //             }
+        //         });
+        //     }
+        // }
+
+        for (const net of networks) {
+            const dockerNetworkName = `${net.network_name}_user_${userId}_${labId}`;
+            
+            // 🔥 DYNAMIC SUBNET LOGIC: Har user ke liye unique range (e.g., 172.25.5.0/24)
+            const dynamicSubnet = `172.25.${userId}.0/24`;
+            const dynamicGateway = `172.25.${userId}.1`;
+
+            const allNetworks = await docker.listNetworks();
+            const exists = allNetworks.find(n => n.Name === dockerNetworkName);
+
+            if (!exists) {
+                await docker.createNetwork({
+                    Name: dockerNetworkName,
+                    Driver: "bridge",
+                    IPAM: {
+                        Config: [{
+                            Subnet: dynamicSubnet,
+                            Gateway: dynamicGateway
+                        }]
+                    }
+                });
+            }
+        }
+
 
         let webIp = "";
 
-        // -------------------------
-        // Start All Containers
-        // -------------------------
+        // 6. Start All Containers
         for (const spec of containers) {
-
-            const image =
-                spec.container_name.trim();
-
-            const containerName =
-                `ctf_${spec.role}_user_${userId}_${labId}`;
-
+            const image = spec.container_name.trim();
+            const containerName = `ctf_${spec.role}_user_${userId}_${labId}`;
             let networkMode = "bridge";
 
             if (spec.network_name) {
-
-                networkMode =
-                    `${spec.network_name}_user_${userId}_${labId}`;
-
+                networkMode = `${spec.network_name}_user_${userId}_${labId}`;
             }
 
-            const container =
-                await docker.createContainer({
-
-                    Image: image,
-
-                    name: containerName,
-
-                    Tty: true,
-
-                    OpenStdin: true,
-
-                    HostConfig: {
-
-                        NetworkMode: networkMode,
-
-                        CapAdd: ["NET_ADMIN"]
-
-                    }
-
-                });
+            const container = await docker.createContainer({
+                Image: image,
+                name: containerName,
+                Tty: true,
+                OpenStdin: true,
+                HostConfig: {
+                    NetworkMode: networkMode,
+                    CapAdd: ["NET_ADMIN"]
+                }
+            });
 
             await container.start();
 
-            // Public Container ki IP bhejna
-            if (
-                spec.role === "public_web" ||
-                spec.role === "web"
-            ) {
-
-                const info =
-                    await container.inspect();
-
-                webIp =
-                    info.NetworkSettings.Networks[networkMode].IPAddress;
-
+            if (spec.role === "public_web" || spec.role === "web") {
+                const info = await container.inspect();
+                webIp = info.NetworkSettings.Networks[networkMode].IPAddress;
             }
-
         }
 
         return res.json({
-
             success: true,
-
             message: "CTF Started Successfully",
-
             ip: webIp
-
         });
 
-    }
-
-    catch (err) {
-
+    } catch (err) {
         console.error(err);
+        let errorMessage = err.message;
+        
+        // Agar Docker image system mein nahi hai toh clean message bhejo
+        if (err.statusCode === 404 && errorMessage.includes("no such image")) {
+            errorMessage = "The required Docker image for this lab does not exist on the server.";
+        }
 
         return res.status(500).json({
-
             success: false,
-
-            message: err.message
-
+            message: errorMessage
         });
-
     }
-});
-// ==================== 4. STOP API ====================
-// Chhota sa helper function jo Docker API ko saans lene ka time dega
+});// ==================== 4. STOP API ====================
+// Chhota sa helper function jo Docker API ko sa lene ka time dega
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 router.post("/stop", auth, async (req, res) => {

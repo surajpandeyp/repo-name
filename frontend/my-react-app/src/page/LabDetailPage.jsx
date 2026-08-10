@@ -171,17 +171,17 @@ function LabDetailPage() {
                 </ul>
               </section>
 
-              <section id="description" className="briefing-section">
+              {/* <section id="description" className="briefing-section">
                 <h2>Lab Description</h2>
                 <p>{lab.labDescription || lab.description}</p>
-              </section>
+              </section> */}
             </div>
 
-            <div className="briefing-sidebar">
+            {/* <div className="briefing-sidebar">
               <a href="#about">About this lab</a>
               <a href="#objectives">Learning Objectives</a>
               <a href="#description">Lab Description</a>
-            </div>
+            </div> */}
           </div>
         ) : (
           <>
@@ -193,7 +193,7 @@ function LabDetailPage() {
             <div className="card briefing-banner-card">
               <div className="briefing-banner-info">
                 <h3>Lab Briefing</h3>
-                <p>Note, the lab briefing may reveal instructions or clues.</p>
+                <p>.</p>
               </div>
               <button className="btn-view-briefing" onClick={() => setActiveTab('briefing')}>
                 Overview

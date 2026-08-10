@@ -131,123 +131,123 @@ function query(sql, values = []) {
 
 
 
-router.post("/start", auth, async function (req, res) {
+// router.post("/start", auth, async function (req, res) {
 
-    try {
+//     try {
 
-        const { labId } = req.body;
+//         const { labId } = req.body;
 
-        if (!labId) {
-            return res.status(400).json({
-                success: false,
-                message: "Lab ID Required"
-            });
-        }
+//         if (!labId) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Lab ID Required"
+//             });
+//         }
 
-        // Lab Check
-        const labRows = await query(
-            "SELECT * FROM pivoting WHERE lab_id = ?",
-            [labId]
-        );
+//         // Lab Check
+//         const labRows = await query(
+//             "SELECT * FROM pivoting WHERE lab_id = ?",
+//             [labId]
+//         );
 
-        if (labRows.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "Lab Not Found"
-            });
-        }
+//         if (labRows.length === 0) {
+//             return res.status(404).json({
+//                 success: false,
+//                 message: "Lab Not Found"
+//             });
+//         }
 
-        const lab = labRows[0];
+//         const lab = labRows[0];
 
-        // Paid Lab Check
-        if (!lab.is_free) {
+//         // Paid Lab Check
+//         if (!lab.is_free) {
 
-            const userId = req.user.id;
+//             const userId = req.user.id;
 
-            const subRows = await query(
-                `SELECT * FROM subscriptions
-                 WHERE user_id = ?
-                 AND expiry_date > NOW()`,
-                [userId]
-            );
+//             const subRows = await query(
+//                 `SELECT * FROM subscriptions
+//                  WHERE user_id = ?
+//                  AND expiry_date > NOW()`,
+//                 [userId]
+//             );
 
-            if (subRows.length === 0) {
-                return res.status(403).json({
-                    success: false,
-                    message: "Subscription Required"
-                });
-            }
-        }
+//             if (subRows.length === 0) {
+//                 return res.status(403).json({
+//                     success: false,
+//                     message: "Subscription Required"
+//                 });
+//             }
+//         }
 
-        // Containers Fetch
-        const containerRows = await query(
-            `SELECT container_name
-             FROM pivoting_containers
-             WHERE lab_id = ?`,
-            [labId]
-        );
+//         // Containers Fetch
+//         const containerRows = await query(
+//             `SELECT container_name
+//              FROM pivoting_containers
+//              WHERE lab_id = ?`,
+//             [labId]
+//         );
 
-        const containers = containerRows.map(
-            row => row.container_name
-        );
+//         const containers = containerRows.map(
+//             row => row.container_name
+//         );
 
-        if (containers.length === 0) {
-            return res.status(404).json({
-                success: false,
-                message: "No Containers Found"
-            });
-        }
+//         if (containers.length === 0) {
+//             return res.status(404).json({
+//                 success: false,
+//                 message: "No Containers Found"
+//             });
+//         }
 
-        let pivotIP = null;
+//         let pivotIP = null;
 
-        // Start Containers
-        for (const name of containers) {
+//         // Start Containers
+//         for (const name of containers) {
 
-            console.log("Starting:", name);
+//             console.log("Starting:", name);
 
-            const container =
-                docker.getContainer(name);
+//             const container =
+//                 docker.getContainer(name);
 
-            const info =
-                await container.inspect();
+//             const info =
+//                 await container.inspect();
 
-            if (info.State.Status !== "running") {
-                await container.start();
-            }
+//             if (info.State.Status !== "running") {
+//                 await container.start();
+//             }
 
-            const updatedInfo =
-                await container.inspect();
+//             const updatedInfo =
+//                 await container.inspect();
 
-            if (name.includes("pivot")) {
+//             if (name.includes("pivot")) {
 
-                const networks =
-                    updatedInfo.NetworkSettings.Networks;
+//                 const networks =
+//                     updatedInfo.NetworkSettings.Networks;
 
-                const firstNetwork =
-                    Object.keys(networks)[0];
+//                 const firstNetwork =
+//                     Object.keys(networks)[0];
 
-                pivotIP =
-                    networks[firstNetwork].IPAddress;
-            }
-        }
+//                 pivotIP =
+//                     networks[firstNetwork].IPAddress;
+//             }
+//         }
 
-        return res.json({
-            success: true,
-            ip: pivotIP
-        });
+//         return res.json({
+//             success: true,
+//             ip: pivotIP
+//         });
 
-    } catch (err) {
+//     } catch (err) {
 
-        console.log("START ERROR:", err);
+//         console.log("START ERROR:", err);
 
-        return res.status(500).json({
-            success: false,
-            error: err.message
-        });
+//         return res.status(500).json({
+//             success: false,
+//             error: err.message
+//         });
 
-    }
+//     }
 
-});
+// });
 
 
 
@@ -257,76 +257,76 @@ router.post("/start", auth, async function (req, res) {
 // =====================================
 // STOP LAB
 // =====================================
-router.post("/stop", auth, async function (req, res) {
+// router.post("/stop", auth, async function (req, res) {
 
-    try {
+//     try {
 
-        const { labId } = req.body;
+//         const { labId } = req.body;
 
-        if (!labId) {
-            return res.status(400).json({
-                success: false,
-                message: "Lab ID Required"
-            });
-        }
+//         if (!labId) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "Lab ID Required"
+//             });
+//         }
 
-        // Database se containers lao
-        const containerRows = await query(
-            `SELECT container_name
-             FROM pivoting_containers
-             WHERE lab_id = ?`,
-            [labId]
-        );
+//         // Database se containers lao
+//         const containerRows = await query(
+//             `SELECT container_name
+//              FROM pivoting_containers
+//              WHERE lab_id = ?`,
+//             [labId]
+//         );
 
-        if (containerRows.length === 0) {
+//         if (containerRows.length === 0) {
 
-            return res.status(404).json({
-                success: false,
-                message: "No Containers Found"
-            });
+//             return res.status(404).json({
+//                 success: false,
+//                 message: "No Containers Found"
+//             });
 
-        }
+//         }
 
-        const containers = containerRows.map(
-            row => row.container_name
-        );
+//         const containers = containerRows.map(
+//             row => row.container_name
+//         );
 
-        // Containers Stop
-        for (const name of containers) {
+//         // Containers Stop
+//         for (const name of containers) {
 
-            console.log("Stopping:", name);
+//             console.log("Stopping:", name);
 
-            const container =
-                docker.getContainer(name);
+//             const container =
+//                 docker.getContainer(name);
 
-            const info =
-                await container.inspect();
+//             const info =
+//                 await container.inspect();
 
-            if (info.State.Status === "running") {
+//             if (info.State.Status === "running") {
 
-                await container.kill();
+//                 await container.kill();
 
-            }
+//             }
 
-        }
+//         }
 
-        return res.json({
-            success: true,
-            message: "Lab Stopped Successfully"
-        });
+//         return res.json({
+//             success: true,
+//             message: "Lab Stopped Successfully"
+//         });
 
-    } catch (err) {
+//     } catch (err) {
 
-        console.log("STOP ERROR:", err);
+//         console.log("STOP ERROR:", err);
 
-        return res.status(500).json({
-            success: false,
-            error: err.message
-        });
+//         return res.status(500).json({
+//             success: false,
+//             error: err.message
+//         });
 
-    }
+//     }
 
-});
+// });
 
 router.post("/auth", (req, res) => {
   const authheader = req.headers.authorization;

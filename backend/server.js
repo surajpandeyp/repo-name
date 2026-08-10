@@ -23,7 +23,8 @@ app.use("/api", require("./routes/webSolvLabs"))
 app.use("/api", require("./routes/pivotSolvLabs"))
 app.use("/api", require("./routes/subscriptionPlan"))
 app.use("/api", require("./routes/feedback"))
-
+app.use("/api", require("./routes/ctf_flag"))
+app.use("/api", require("./routes/web_flag"))
 
 app.listen(3000, () => {
     console.log("Server Running on Port 3000");
