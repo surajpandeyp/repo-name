@@ -75,15 +75,17 @@ function CtfLabsList() {
         }
 
         // --- STEP C: FETCH RUNNING CONTAINER STATUS ---
-        const runningRes = await fetch("/api/runningContainer", {
+        const runningRes = await fetch("/api/ctf/runningContainer", {
           headers: { 
             Authorization: "Bearer " + token 
           },
         });
         const runningData = await runningRes.json();
         
+        console.log("Running Container API Response:", runningData); // Console mein check karne ke liye
+
         if (runningData.success && runningData.labId) {
-          setRunningLabId(Number(runningData.labId));
+          setRunningLabId(runningData.labId); 
         }
 
         setLoading(false);
@@ -177,7 +179,8 @@ function CtfLabsList() {
       {/* List - Ab yahan filtered aur current page ki labs dikhengi */}
       {currentLabs.length > 0 ? (
         currentLabs.map((lab) => {
-          const isRunning = runningLabId === lab.id;
+          // Yahan string conversion use kiya hai taaki data type match hone ka lafda khatam ho jaye
+          const isRunning = runningLabId !== null && String(runningLabId).trim() === String(lab.id).trim();
 
           return (
             <div 
