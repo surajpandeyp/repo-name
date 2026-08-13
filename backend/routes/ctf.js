@@ -15,6 +15,51 @@ function query(sql, values = []) {
     });
 }
 
+// ==================== 5. VERIFY / LABS STATUS API ====================
+router.post("/runningContainer", auth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { labIds } = req.body; // Frontend se array aayega lab IDs ka
+
+        // Docker se saare active containers ki list nikalo
+        const containers = await docker.listContainers();
+
+        // Har lab ke liye check karo ki us user ka koi container chal raha hai ya nahi
+        const labsStatus = labIds.map(labId => {
+            // Pattern match karo jo aapne start/status mein use kiya hai: `_user_${userId}_${labId}`
+            const isRunning = containers.some(c => 
+                c.Names.some(name => name.includes(`_user_${userId}_${labId}`))
+            );
+
+            return {
+                id: labId,
+                isRunning: isRunning,
+                usersSolvedCount: 0, // Agar database se count lena ho toh query chala sakte ho, abhi ke liye 0 ya static
+                progress: "Not Completed" // Aapke database ke progress logic ke mutabiq
+            };
+        });
+
+        return res.json({
+            success: true,
+            labs: labsStatus
+        });
+
+    } catch (err) {
+        console.error("Error in /verify:", err);
+        return res.status(500).json({
+            success: false,
+            message: err.message
+        });
+    }
+});
+
+
+
+
+
+
+
+
 // ==================== 1. STATUS API ====================
 router.get("/status", auth, async (req, res) => {
     try {

@@ -13,7 +13,7 @@ const labs = [
   },
   {
     id: 2,
-    title: "CTF Practice",
+    title: "CTF",
     desc: "Beginner to advanced capture the flag labs",
     path: "/ctfLabsList",
     image:
@@ -33,7 +33,7 @@ const labs = [
     desc: "Practice reverse engineering and binary exploitation",
     path: "#",
     comingSoon: true, // Naya flag jo status handle karega
-    image: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1200&auto=format&fit=crop](https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1200&auto=format&fit=crop",
   },
 
   {
@@ -51,7 +51,7 @@ const labs = [
     desc: "Practice enterprise network attacks and Kerberoasting",
     path: "#",
     comingSoon: true,
-    image: "https://images.unsplash.com/photo-1544197150-b99a580bb7a8?q=80&w=1200&auto=format&fit=crop",
+    image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop](https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200&auto=format&fit=crop",
   },
 
 

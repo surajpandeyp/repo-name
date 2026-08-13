@@ -1,27 +1,97 @@
 // Pivoting Labs
 export const PivotingLabs = [
-  { 
-    id: 'pivoting-1', 
-    premium:'Free',
-    name: 'ColdBoxEasy', 
+  
+  {
+    id: 'pivoting-1',
+    premium: 'Free',
+    name: 'Pivot Point',
     category: 'test-pivot',
-    difficulty: 'Fundamental', 
-    os: 'Linux', 
-    xp: '10', 
-    users: '1,093',
-    description: 'A beginner-friendly Linux lab focused on basic enumeration and privilege escalation techniques.'
+    difficulty: 'medium',
+    os: 'Linux',
+    xp: '40',
+    users: '850',
+    description: 'Master the art of SQL Injection by exploiting vulnerable web forms.',
+    
+    // Naye fields yaha add karo:
+    about: 'This lab is an advanced Internal Pivoting and Privilege Escalation Capture The Flag (CTF) challenge. Participants start from a publicly accessible web application and navigate deep into an internal network. The lab requires multiple techniques, including web exploitation, local enumeration, cron job hijacking, network tunneling, and lateral movement.',
+    objectives: [
+      'Port Scanning: Identify open ports and running services on the public-facing target.',
+      'Web Enumeration: Explore the web application to find vulnerabilities or file upload/command execution points',
+      'Initial Shell: Bypass filters to gain an initial low-privileged shell on the target  machine.',
+      'System Discovery: Check internal files, running processes, and system configurations.',
+      'Cron Service Analysis: Inspect active cron jobs or scheduled tasks on the system.',
+      'Privilege Escalation: Exploit misconfigurations, such as writable files or cron jobs, to gain local root access.',
+      'Credential Harvesting: Extract credentials or SSH keys for the second internal machine from the root directory or sensitive files of the first machine.',
+      'Internal Network Scanning: Use tools like Nmap to discover live hosts and open ports on the isolated internal subnet',
+      'Tunnel Creation: Establish a secure network tunnel between the attacker machine and the internal network using Chisel or an equivalent tunneling tool.',
+      'Lateral Movement: Establish SSH access to the secondary target machine using the extracted credentials and active tunnel.',
+      'Post-Exploitation Recon: Navigate the secondary machine and perform internal enumeration.',
+      'Final Root Escalation: Elevate privileges to root on the secondary machine.',
+      'Flag Submission: Locate the final flag and submit it to the database table or submission portal.'
+    ],
+
+    labDescription: 'In this lab, you will systematically evaluate environment configurations, uncover vulnerabilities, and exploit flaws to successfully retrieve target flags securely.'
   },
-  { 
+
+
+  {
     id: 'pivoting-2',
-    premium:'VIP', 
-    name: 'Sams', 
+    premium: 'VIP',
+    name: 'CVE-2025-29927',
     category: 'test-pivot',
-    difficulty: 'Fundamental', 
-    os: 'Windows', 
-    xp: '20', 
-    users: '418',
-    description: 'An introductory Windows lab covering SMB exploitation and basic Active Directory concepts.'
+    difficulty: 'Easy',
+    os: 'Linux',
+    xp: '30',
+    users: '850',
+    description: 'Master the art of SQL Injection by exploiting vulnerable web forms.',
+    
+    // Naye fields yaha add karo:
+    about: 'CVE-2025-29927 is a critical authorization bypass vulnerability in the Next.js web framework. It allows external attackers to completely bypass middleware security checks and access protected, restricted, or private routes without authentication Next.js: 11.1.4 up to 15.2.2',
+    objectives: [
+      'Vulnerability Analysis: Examine the web application and target service vulnerable to CVE-2025-29927.',
+      'Filter & Auth Bypass: Successfully bypass security controls using the vulnerability to gain administrative access.',
+      'Initial Shell: Leverage the admin privileges to secure a functional command-line session on the target username recon /machine.',
+      'Privilege Escalation: Host Discovery: Enumerate system configurations, running services, and local user contexts.',
+      'SUID Binary Exploitation: Discover misconfigured SUID binaries on the filesystem and abuse them to escalate local privileges to root',
+      'Network Discovery:Identify connected subnet interfaces and bridge configurations leading to isolated internal networks.',
+      'Service Reconnaissance: Scan internal hosts via the established bridge to map active services, focusing specifically on SMB and SSH ports.',
+      'Credential & Tunnel Utilization: Leverage discovered service entry points or credentials to move laterally into the secondary network segment.',
+      'Secondary Recon: Perform post-exploitation enumeration on the target host within the secondary network.',
+      'Final Flag Submission: Locate the ultimate root flag on the secondary machine and complete the challenge.',
+      
+    ],
+
+    labDescription: 'In this lab, you will systematically evaluate environment configurations, uncover vulnerabilities, and exploit flaws to successfully retrieve target flags securely.'
+  },
+
+  {
+    id: 'pivoting-3',
+    premium: 'VIP',
+    name: 'Playground',
+    category: 'test-pivot',
+    difficulty: 'Easy',
+    os: 'Linux',
+    xp: '25',
+    users: '850',
+    description: 'Master the art of SQL Injection by exploiting vulnerable web forms.',
+    
+    // Naye fields yaha add karo:
+    about: 'This lab features a Node.js-based web application that utilizes the node-serialize library for session management. Upon user login  using  username or passwrd username thomas  amd passwrd thomas, the application serializes the session state and stores it in the browser as a Base64-encoded cookie  Once inside, the user must perform local enumeration to discover SUID binary misconfigurations, escalate privileges to root, and pivot into the internal private network (net_private) to compromise the secondary machine and capture the final flag.',
+    objectives: [
+      'Initial Access: Analyze the authentication session cookie and exploit the Node.js insecure deserialization vulnerability to execute a reverse shell payload',
+      'Local Privilege Escalation: Enumerate the container environment, identify SUID binary misconfigurations, and elevate privileges to root.',
+      'Network Reconnaissance: Discover live hosts and open ports across the internal private network (172.30.5.10/24) using pivoting techniques.',
+      'Final Exploitation: Target the internal host via the compromised system to capture the final root flag (pivot_flag).',
+      
+      
+      
+    ],
+
+    labDescription: 'In this lab, you will systematically evaluate environment configurations, uncover vulnerabilities, and exploit flaws to successfully retrieve target flags securely.'
   }
+ 
+ 
+ 
 ];
 
 // Web Labs

@@ -1,104 +1,80 @@
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
+/* 1. Global settings ko bilkul mat chhuo taaki baki puri website normal chale */
+
+/* 2. Forgot Password page ke liye isolated wrapper */
+.forgot-page {
+  position: fixed; /* Yeh poori screen par lock kar dega bina global HTML/Body ko hilaaye */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at top, #0a1428, #050b16);
+  padding: 20px;
+  box-sizing: border-box;
+  z-index: 999; /* Taki yeh baki elements ke upar sahi se center mein dikhe */
+  overflow: hidden; /* Sirf is page ka scroll band rahega */
 }
 
-.forgot-page{
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-
-  background:
-  radial-gradient(circle at top,
-  #0a1428,
-  #050b16);
-
-  padding:20px;
+/* 3. Card ki styling */
+.forgot-card {
+  width: 100%;
+  max-width: 450px;
+  background: #0f172a;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: 18px;
+  padding: 35px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.15);
+  box-sizing: border-box;
 }
 
-.forgot-card{
-
-  width:100%;
-  max-width:450px;
-
-  background:#0f172a;
-
-  border:1px solid rgba(59,130,246,.25);
-
-  border-radius:18px;
-
-  padding:35px;
-
-  text-align:center;
-
-  box-shadow:
-  0 0 30px rgba(59,130,246,.15);
+.forgot-card h1 {
+  color: white;
+  margin-bottom: 15px;
 }
 
-.forgot-card h1{
-  color:white;
-  margin-bottom:15px;
+.forgot-card p {
+  color: #94a3b8;
+  margin-bottom: 20px;
 }
 
-.forgot-card p{
-  color:#94a3b8;
-  margin-bottom:20px;
+.forgot-card input {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid transparent;
+  outline: none;
+  border-radius: 10px;
+  background: #1e293b;
+  color: white;
+  margin-bottom: 15px;
+  box-sizing: border-box;
 }
 
-.forgot-card input{
-
-  width:100%;
-
-  padding:14px;
-
-  border:none;
-
-  outline:none;
-
-  border-radius:10px;
-
-  background:#1e293b;
-
-  color:white;
-
-  margin-bottom:15px;
+.forgot-card input:focus {
+  border: 1px solid #3b82f6;
 }
 
-.forgot-card input:focus{
-  border:1px solid #3b82f6;
+.forgot-card button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #2563eb;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
-.forgot-card button{
-
-  width:100%;
-
-  padding:14px;
-
-  border:none;
-
-  border-radius:10px;
-
-  background:#2563eb;
-
-  color:white;
-
-  font-size:15px;
-
-  font-weight:600;
-
-  cursor:pointer;
-
-  transition:.3s;
+.forgot-card button:hover {
+  background: #1d4ed8;
 }
 
-.forgot-card button:hover{
-  background:#1d4ed8;
-}
-
-.msg{
-  margin-top:15px;
-  color:#22c55e;
-  font-weight:600;
+.msg {
+  margin-top: 15px;
+  color: #22c55e;
+  font-weight: 600;
 }

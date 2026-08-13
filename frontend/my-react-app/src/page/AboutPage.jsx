@@ -9,7 +9,7 @@ function AboutPage() {
         
         {/* Hero Section */}
         <section className="about-hero">
-          <h1>🎯 About Hacking Labs</h1>
+          <h1>🎯 About Labs</h1>
           <p className="hero-tagline">
             The ultimate training ground for cyber security professionals, penetration testers, and CTF enthusiasts.
           </p>

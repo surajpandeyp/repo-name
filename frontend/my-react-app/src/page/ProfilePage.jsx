@@ -93,7 +93,7 @@ const ProfilePage = () => {
           </div>
           <div className="user-details">
             <h3>
-              {username} <span className="badge">08</span>
+              {username} <span className="badge"></span>
             </h3>
             {/* <p className="location">📍 India</p> */}
           </div>

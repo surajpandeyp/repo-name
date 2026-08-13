@@ -5,8 +5,7 @@
   background-color: #0b1120;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding-top: 15px;
+  align-items: center; /* Yahan flex-start se hata kar 'center' kar diya taaki bilkul beech mein aaye */
   overflow: hidden; /* Login page par scroll bilkul band */
   box-sizing: border-box;
 }

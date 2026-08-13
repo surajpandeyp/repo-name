@@ -5,6 +5,9 @@
   padding: 40px 60px;
   color: #ffffff;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  
+  /* Yahan humne zoom 70% kar diya hai taaki ye page khulte hi chhota/zoom-out dikhe */
+  zoom: 70%; 
 }
 
 h1 { font-size: 2rem; margin-bottom: 5px; }

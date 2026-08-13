@@ -35,7 +35,7 @@ function Navbar() {
       </div>
 
       <div className="nav-links">
-        <span onClick={() => navigate("/vpn-setup")}>VPN-Setup</span>
+        <span onClick={() => navigate("/vpn-setup")}>VPN Setup</span>
         <span onClick={() => navigate("/labs")}>All Labs</span>
         <span onClick={() => navigate("/subcribe")}>Subscription</span>
         <span onClick={() => navigate("/About")}>About-labs</span>

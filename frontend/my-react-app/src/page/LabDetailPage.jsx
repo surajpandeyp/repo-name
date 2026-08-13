@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, redirect } from 'react-router-dom';
 import { allLabs } from './LabData';
 import './LabDetailPage.css';
 
@@ -102,7 +102,11 @@ function LabDetailPage() {
         body: JSON.stringify({ labId: lab.id, userFlag })
       });
       const data = await res.json();
-      setFlagStatus(data.message);
+      //setFlagStatus(data.message);
+      if(data.success === true){
+        alert(data.message);
+        navigate("/feedback")
+      }
     } catch (err) { alert("Flag submission failed"); }
   };
 
@@ -193,7 +197,7 @@ function LabDetailPage() {
             <div className="card briefing-banner-card">
               <div className="briefing-banner-info">
                 <h3>Lab Briefing</h3>
-                <p>.</p>
+                <p>Lab briefings contain critical instructions and mission clues.</p>
               </div>
               <button className="btn-view-briefing" onClick={() => setActiveTab('briefing')}>
                 Overview

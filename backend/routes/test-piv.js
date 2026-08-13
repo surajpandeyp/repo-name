@@ -19,19 +19,14 @@ function query(sql, values = []) {
 router.get("/status", auth, async (req, res) => {
     try {
         const userId = req.user.id;
-
         const containers = await docker.listContainers();
 
-        // Pattern se 'public_web' container dhoondo
         const webContainer = containers.find(c =>
             c.Names.some(name => name.startsWith(`/ctf_public_web_user_${userId}_`))
         );
 
         if (!webContainer) {
-            return res.json({
-                success: true,
-                running: false
-            });
+            return res.json({ success: true, running: false });
         }
 
         const container = docker.getContainer(webContainer.Id);
@@ -46,29 +41,13 @@ router.get("/status", auth, async (req, res) => {
 
         const ip = network ? network.IPAddress : (Object.values(info.NetworkSettings.Networks)[0]?.IPAddress || "");
 
-        return res.json({
-            success: true,
-            running: true,
-            labId,
-            ip
-        });
+        return res.json({ success: true, running: true, labId, ip });
 
     } catch (err) {
         console.error(err);
-        return res.status(500).json({
-            success: false,
-            message: err.message
-        });
+        return res.status(500).json({ success: false, message: err.message });
     }
 });
-
-// Helper function
-async function getOrCreateNetwork(networkName) {
-    const networks = await docker.listNetworks();
-    const net = networks.find(n => n.Name === networkName);
-    if (net) return docker.getNetwork(net.Id);
-    return await docker.createNetwork({ Name: networkName, Driver: "bridge" });
-}
 
 // ==================== 2. SUBSCRIBE API ====================
 router.get("/subcribe", auth, async(req, res) => {
@@ -84,14 +63,14 @@ router.get("/subcribe", auth, async(req, res) => {
     }
 });
 
-// ==================== 3. START API ====================
-
+// ==================== 3. START API (Dynamic Subnet for Pivoting) ====================
 router.post("/start", auth, async (req, res) => {
     try {
         const { labId } = req.body;
         const userId = req.user.id;
 
-        // 1. Database Checks (Lab Exist Karti Hai Ya Nahi)
+        console.log("AUTH USER OBJECT:", req.user);
+
         const findId = await query("SELECT * FROM pivoting WHERE lab_id = ?", [labId]);
         if (findId.length === 0) return res.json({ success: false, message: "Lab not found" });
         
@@ -100,7 +79,6 @@ router.post("/start", auth, async (req, res) => {
             if (!sub.length) return res.json({ success: false, message: "Subscription required" });
         }
         
-        // 2. Check if any container for this user is already running
         const allContainers = await docker.listContainers();
         const existing = allContainers.find(c => c.Names.some(n => n.includes(`_user_${userId}_`)));
         
@@ -108,29 +86,36 @@ router.post("/start", auth, async (req, res) => {
             return res.json({ success: false, message: "A lab is already running. Please stop it first." });
         }
 
-        // 3. CHECK CONTAINERS FIRST (Networks banane se PEHLE)
         const findcontainers = await query(
-            `SELECT container_name,
-                    role,
-                    network_name
-             FROM pivoting_containers
-             WHERE lab_id=?`,
+            `SELECT container_name, role, network_name FROM pivoting_containers WHERE lab_id=?`,
             [labId]
         );
         
         if (!findcontainers.length) {
-            return res.json({
-                success: false,
-                message: "No Containers Found"
-            });
+            return res.json({ success: false, message: "No Containers Found" });
         }
 
-        // 4. Networks Fetch Aur Create (Containers milne ke baad)
         const labNetworks = await query("SELECT * FROM ctf_networks WHERE lab_id = ?", [labId]);
         if (!labNetworks.length) return res.json({ success: false, message: "Network configurations not found" });
 
+        // 🔥 DYNAMIC SUBNET LOGIC: Har network type ke liye user-specific unique range generate karein
+        // Jaise agar userId = 5 hai, toh public net banega 172.25.5.0/24 aur private net banega 172.30.5.0/24
         for (const net of labNetworks) {
             const userNetworkName = `${net.network_name}_user_${userId}_${labId}`;
+            
+            let dynamicSubnet, dynamicGateway;
+            if (net.network_name === "net_public") {
+                dynamicSubnet = `172.25.${userId}.0/24`;
+                dynamicGateway = `172.25.${userId}.1`;
+            } else if (net.network_name === "net_private") {
+                dynamicSubnet = `172.30.${userId}.0/24`;
+                dynamicGateway = `172.30.${userId}.1`;
+            } else {
+                // Fallback agar koi aur network ho
+                dynamicSubnet = net.subnet;
+                dynamicGateway = net.gateway;
+            }
+
             const networks = await docker.listNetworks();
             const existingNet = networks.find(n => n.Name === userNetworkName);
             
@@ -139,7 +124,7 @@ router.post("/start", auth, async (req, res) => {
                     Name: userNetworkName,
                     Driver: "bridge",
                     IPAM: {
-                        Config: [{ Subnet: net.subnet, Gateway: net.gateway }]
+                        Config: [{ Subnet: dynamicSubnet, Gateway: dynamicGateway }]
                     }
                 });
             }
@@ -147,17 +132,15 @@ router.post("/start", auth, async (req, res) => {
 
         let webIp = "";
 
-        // 5. Create Aur Start Loop
         for (const spec of findcontainers) {
             const containerName = `ctf_${spec.role}_user_${userId}_${labId}`;
             const primaryNetworkName = `${spec.network_name}_user_${userId}_${labId}`;
             
-            // Dynamic IP mapping based on role/network
             let staticIp = "";
             if (spec.network_name === "net_public") {
-                staticIp = "172.25.0.10"; // Public web container ka public interface IP
+                staticIp = `172.25.${userId}.2`;
             } else if (spec.network_name === "net_private") {
-                staticIp = "172.30.0.20"; // Baki internal nodes ki private IP
+                staticIp = `172.30.${userId}.20`;
             }
 
             const container = await docker.createContainer({
@@ -180,7 +163,6 @@ router.post("/start", auth, async (req, res) => {
 
             await container.start();
 
-            // Agar role 'public_web' hai, toh use net_public ke baad net_private se bhi jodo
             if (spec.role === "public_web") {
                 const privateNetworkName = `net_private_user_${userId}_${labId}`;
                 const privateNet = docker.getNetwork(privateNetworkName);
@@ -188,33 +170,28 @@ router.post("/start", auth, async (req, res) => {
                 await privateNet.connect({
                     Container: container.id,
                     EndpointConfig: {
-                        IPAMConfig: { IPv4Address: "172.30.0.10" } // public_web ka internal network IP
+                        IPAMConfig: { IPv4Address: `172.30.${userId}.10` }
                     }
                 });
 
-                // User ko response bhejne ke liye public network wali IP uthao
                 const info = await container.inspect();
                 webIp = info.NetworkSettings.Networks[primaryNetworkName].IPAddress;
             }
         }
 
-        return res.json({ success: true, message: "Pivoting lab started successfully", ip: webIp });
+        return res.json({ success: true, message: "Pivoting lab started successfully with dynamic subnets", ip: webIp });
 
     } catch (err) {
         console.error(err);
         let errorMessage = err.message;
-        
-        // Agar Docker image system mein nahi hai toh clean message bhejo
         if (err.statusCode === 404 && errorMessage.includes("no such image")) {
             errorMessage = "The required Docker image for this lab does not exist on the server.";
         }
-
         return res.status(500).json({ success: false, message: errorMessage });
     }
 });
 
 // ==================== 4. STOP API ====================
-// Chhota sa helper function jo Docker API ko saans lene ka time dega
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 router.post("/stop", auth, async (req, res) => {
@@ -224,17 +201,12 @@ router.post("/stop", auth, async (req, res) => {
         
         const containerSpecs = await query("SELECT role FROM pivoting_containers WHERE lab_id = ?", [labId]);
 
-        // 1. Pehle saare containers ko ek-ek karke clear karo
         for (const spec of containerSpecs) {
             const containerName = `ctf_${spec.role}_user_${userId}_${labId}`;
             const container = docker.getContainer(containerName);
 
             try {
-                // Seedha force remove maaro! Alag se inspect aur stop karne ki zaroori nahi hai.
-                // v: true (volumes delete karega), force: true (agar running hai toh pehle kill karega fir remove)
                 await container.remove({ v: true, force: true });
-                
-                // Har container hatane ke baad 300ms ka chhota sa gap do taaki socket free ho jaye
                 await delay(300); 
             } catch (err) {
                 if (err.statusCode !== 404) {
@@ -243,10 +215,8 @@ router.post("/stop", auth, async (req, res) => {
             }
         }
 
-        // 2. Chhota sa pause networks delete karne se pehle
         await delay(500);
 
-        // 3. Ab networks ko delete karo
         const labNetworks = await query("SELECT network_name FROM ctf_networks WHERE lab_id = ?", [labId]);
 
         for (const net of labNetworks) {
@@ -255,7 +225,7 @@ router.post("/stop", auth, async (req, res) => {
             
             try {
                 await network.remove();
-                await delay(300); // Network remove hone ke baad bhi chhota sa pause
+                await delay(300);
             } catch (err) {
                 if (err.statusCode !== 404) {
                     console.error(`Error removing network ${dynamicNetworkName}:`, err);
@@ -265,15 +235,13 @@ router.post("/stop", auth, async (req, res) => {
 
         return res.json({
             success: true,
-            message: "Pivoting lab, containers, and all user networks removed cleanly without socket errors"
+            message: "Pivoting lab, containers, and all user networks removed cleanly"
         });
 
     } catch (err) {
         console.error(err);
-        return res.status(500).json({
-            success: false,
-            message: err.message
-        });
+        return res.status(500).json({ success: false, message: err.message });
     }
 });
+
 module.exports = router;

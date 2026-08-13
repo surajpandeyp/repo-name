@@ -1,16 +1,19 @@
 import "./CtfLabList.css";
 import { useNavigate } from 'react-router-dom';
 import { allLabs } from './LabData'; // Saara static data yahan se aaya
-import { useEffect, useState } from "react"; 
+import { useEffect, useState, useMemo } from "react"; 
 
 function CtfLabsList() {
   const navigate = useNavigate();
   
-  // 1. Logic: Sirf 'ctf' category wale labs filter karo
-  const CtfLabs = allLabs.filter(lab => lab.category === 'ctf');
+  // 1. Logic: Sirf 'ctf' category wale labs filter karo (Optimized with useMemo)
+  const CtfLabs = useMemo(() => {
+    return allLabs.filter(lab => lab.category === 'ctf');
+  }, []);
 
   const [labsWithLiveData, setLabsWithLiveData] = useState(CtfLabs);
   const [loading, setLoading] = useState(true);
+  const [runningLabId, setRunningLabId] = useState(null); // Running container tracking state
 
   // --- SEARCH & FILTER STATES ---
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,7 +46,7 @@ function CtfLabsList() {
           return;
         }
 
-        // --- STEP B: LIVE DATA FETCH FROM BACKEND ---
+        // --- STEP B: LIVE DATA & PROGRESS FETCH FROM BACKEND ---
         const labIds = CtfLabs.map(lab => lab.id);
 
         const liveRes = await fetch("/api/verify", {
@@ -57,9 +60,9 @@ function CtfLabsList() {
 
         const liveData = await liveRes.json();
 
+        let mergedData = CtfLabs;
         if (liveData.success) {
-          // --- STEP C: MERGE STATIC DATA WITH BACKEND DATA ---
-          const mergedData = CtfLabs.map(staticLab => {
+          mergedData = CtfLabs.map(staticLab => {
             const liveInfo = liveData.labs.find(l => l.id === staticLab.id);
 
             return {
@@ -68,9 +71,21 @@ function CtfLabsList() {
               progress: liveInfo ? liveInfo.progress : "Not Completed" 
             };
           });
-
           setLabsWithLiveData(mergedData);
         }
+
+        // --- STEP C: FETCH RUNNING CONTAINER STATUS ---
+        const runningRes = await fetch("/api/runningContainer", {
+          headers: { 
+            Authorization: "Bearer " + token 
+          },
+        });
+        const runningData = await runningRes.json();
+        
+        if (runningData.success && runningData.labId) {
+          setRunningLabId(Number(runningData.labId));
+        }
+
         setLoading(false);
 
       } catch (err) {
@@ -80,16 +95,18 @@ function CtfLabsList() {
     };
 
     checkAuthAndFetchData();
-  }, [navigate]);
+  }, [navigate, CtfLabs]);
 
   const handleLabClick = (id) => navigate(`/labDetailPage/${id}`);
 
   // --- SEARCH & DIFFICULTY FILTER LOGIC ---
-  const filteredLabs = labsWithLiveData.filter(lab => {
-    const matchesSearch = lab.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesDifficulty = selectedDifficulty === "All" || lab.difficulty.toLowerCase() === selectedDifficulty.toLowerCase();
-    return matchesSearch && matchesDifficulty;
-  });
+  const filteredLabs = useMemo(() => {
+    return labsWithLiveData.filter(lab => {
+      const matchesSearch = lab.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesDifficulty = selectedDifficulty === "All" || lab.difficulty.toLowerCase() === selectedDifficulty.toLowerCase();
+      return matchesSearch && matchesDifficulty;
+    });
+  }, [labsWithLiveData, searchQuery, selectedDifficulty]);
 
   // --- PAGINATION LOGIC (Based on filteredLabs) ---
   const indexOfLastLab = currentPage * labsPerPage;
@@ -113,7 +130,7 @@ function CtfLabsList() {
   };
 
   if (loading) {
-    return <div className="labs-container"><h3>...</h3></div>;
+    return <div className="labs-container"><h3>Loading...</h3></div>;
   }
 
   return (
@@ -149,7 +166,7 @@ function CtfLabsList() {
       {/* Header */}
       <div className="lab-row header-row">
         <div className="column">Name</div>
-        <div className="column">vip or free</div>
+        <div className="column">VIP or Free</div>
         <div className="column">Difficulty</div>
         <div className="column">OS/Type</div>
         <div className="column">XP</div>
@@ -159,25 +176,38 @@ function CtfLabsList() {
 
       {/* List - Ab yahan filtered aur current page ki labs dikhengi */}
       {currentLabs.length > 0 ? (
-        currentLabs.map((lab) => (
-          <div key={lab.id} className="lab-row" onClick={() => handleLabClick(lab.id)}>
-            <div className="column">{lab.name}</div>
-            <div className="column">{lab.premium}</div>
-            <div className="column">
-              <span className="diff-badge">{lab.difficulty}</span>
+        currentLabs.map((lab) => {
+          const isRunning = runningLabId === lab.id;
+
+          return (
+            <div 
+              key={lab.id} 
+              className={`lab-row ${isRunning ? 'running-row-highlight' : ''}`} 
+              onClick={() => handleLabClick(lab.id)}
+            >
+              <div className="column" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                {lab.name}
+                {isRunning && (
+                  <span className="running-badge">RUNNING</span>
+                )}
+              </div>
+              <div className="column">{lab.premium}</div>
+              <div className="column">
+                <span className="diff-badge">{lab.difficulty}</span>
+              </div>
+              <div className="column">{lab.os}</div>
+              <div className="column">{lab.xp} XP</div>
+              <div className="column">{lab.users} Users</div>
+              <div className="column">
+                {lab.progress === "Completed" ? (
+                  <div className="progress-circle completed" style={{ backgroundColor: "#2ecc71" }} title="Completed"></div>
+                ) : (
+                  <div className="progress-circle" title="Not Completed" style={{ border: "2px solid #95a5a6", backgroundColor: "transparent" }}></div>
+                )}
+              </div>
             </div>
-            <div className="column">{lab.os}</div>
-            <div className="column">{lab.xp} XP</div>
-            <div className="column">{lab.users} Users</div>
-            <div className="column">
-              {lab.progress === "Completed" ? (
-                <div className="progress-circle completed" style={{ backgroundColor: "#2ecc71" }} title="Completed"></div>
-              ) : (
-                <div className="progress-circle" title="Not Completed" style={{ border: "2px solid #95a5a6", backgroundColor: "transparent" }}></div>
-              )}
-            </div>
-          </div>
-        ))
+          );
+        })
       ) : (
         <div style={{ textAlign: "center", padding: "20px", color: "#94a3b8" }}>
           No labs found matching your filter.

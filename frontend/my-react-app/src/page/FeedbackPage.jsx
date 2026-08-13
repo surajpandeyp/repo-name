@@ -36,7 +36,7 @@ function FeedbackPage() {
       // Temporary local console log
       if(response.ok){
         alert("Thank you for your valuable feedback! We truly appreciate your time.");
-        navigate("/labs")
+        
       }
 
     } catch (err) {
