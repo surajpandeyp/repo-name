@@ -15,6 +15,53 @@ function query(sql, values = []) {
     });
 }
 
+router.get("/runningContainer", auth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // Docker se saare running containers ki list nikalo
+        const containers = await docker.listContainers();
+
+        // Check karo ki is user ka koi bhi container chal raha hai ya nahi
+        // Pattern: `_user_${userId}_` (isase user ka koi bhi container match ho jayega)
+        const userContainer = containers.find(c => 
+            c.Names.some(name => name.includes(`_user_${userId}_`))
+        );
+
+        let runningLabId = null;
+
+        if (userContainer) {
+            // Container ke naam se labId extract karne ka logic
+            // Maan lo container ka name hai: /my-app_user_12_ctf-1
+            // Hum '_user_12_' ke baad wala hissa (labId) nikal lenge
+            const matchedName = userContainer.Names.find(name => name.includes(`_user_${userId}_`));
+            
+            if (matchedName) {
+                const parts = matchedName.split(`_user_${userId}_`);
+                if (parts.length > 1) {
+                    runningLabId = parts[1].replace(/^\//, ''); // Agar aage slash ho toh hata do
+                }
+            }
+        }
+
+        return res.json({
+            success: true,
+            labId: runningLabId // Agar chal raha hoga toh ID aayegi (jaise "ctf-1"), warna null
+        });
+
+    } catch (err) {
+        console.error("Error in /runningContainer:", err);
+        return res.status(500).json({
+            success: false,
+            message: err.message
+        });
+    }
+});
+
+
+
+
+
 // ==================== 1. STATUS API ====================
 router.get("/status", auth, async (req, res) => {
     try {

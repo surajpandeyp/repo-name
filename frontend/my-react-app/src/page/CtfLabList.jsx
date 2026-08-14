@@ -1,19 +1,19 @@
 import "./CtfLabList.css";
 import { useNavigate } from 'react-router-dom';
-import { allLabs } from './LabData'; // Saara static data yahan se aaya
+import { allLabs } from './LabData'; 
 import { useEffect, useState, useMemo } from "react"; 
 
 function CtfLabsList() {
   const navigate = useNavigate();
   
-  // 1. Logic: Sirf 'ctf' category wale labs filter karo (Optimized with useMemo)
+  // 1. Static CTF labs filter
   const CtfLabs = useMemo(() => {
     return allLabs.filter(lab => lab.category === 'ctf');
   }, []);
 
   const [labsWithLiveData, setLabsWithLiveData] = useState(CtfLabs);
   const [loading, setLoading] = useState(true);
-  const [runningLabId, setRunningLabId] = useState(null); // Running container tracking state
+  const [runningLabId, setRunningLabId] = useState(null);
 
   // --- SEARCH & FILTER STATES ---
   const [searchQuery, setSearchQuery] = useState("");
@@ -21,23 +21,22 @@ function CtfLabsList() {
 
   // --- PAGINATION STATES ---
   const [currentPage, setCurrentPage] = useState(1);
-  const labsPerPage = 10; // Ek page par 10 labs dikhengi
+  const labsPerPage = 10; 
 
   useEffect(() => {
+    let isMounted = true; 
+
     const checkAuthAndFetchData = async () => {
       try {
         const token = localStorage.getItem("token");
 
         // --- STEP A: AUTH CHECK ---
-        const authRes = await fetch(
-          "/api/pivoting/auth",
-          {
-            method: "POST",
-            headers: {
-              Authorization: "Bearer " + token,
-            },
-          }
-        );
+        const authRes = await fetch("/api/pivoting/auth", {
+          method: "POST",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
 
         if (authRes.status === 401) {
           localStorage.removeItem("token");
@@ -46,7 +45,7 @@ function CtfLabsList() {
           return;
         }
 
-        // --- STEP B: LIVE DATA & PROGRESS FETCH FROM BACKEND ---
+        // --- STEP B: LIVE DATA & PROGRESS FETCH ---
         const labIds = CtfLabs.map(lab => lab.id);
 
         const liveRes = await fetch("/api/verify", {
@@ -60,9 +59,8 @@ function CtfLabsList() {
 
         const liveData = await liveRes.json();
 
-        let mergedData = CtfLabs;
-        if (liveData.success) {
-          mergedData = CtfLabs.map(staticLab => {
+        if (liveData.success && isMounted) {
+          const mergedData = CtfLabs.map(staticLab => {
             const liveInfo = liveData.labs.find(l => l.id === staticLab.id);
 
             return {
@@ -74,62 +72,68 @@ function CtfLabsList() {
           setLabsWithLiveData(mergedData);
         }
 
-        // --- STEP C: FETCH RUNNING CONTAINER STATUS ---
+        // --- STEP C: AUTOMATICALLY FETCH RUNNING CONTAINER ---
         const runningRes = await fetch("/api/ctf/runningContainer", {
+          method: "GET",
           headers: { 
             Authorization: "Bearer " + token 
           },
         });
         const runningData = await runningRes.json();
         
-        console.log("Running Container API Response:", runningData); // Console mein check karne ke liye
-
-        if (runningData.success && runningData.labId) {
-          setRunningLabId(runningData.labId); 
+        if (runningData.success && runningData.labId && isMounted) {
+          setRunningLabId(runningData.labId);
         }
-
-        setLoading(false);
 
       } catch (err) {
         console.log("Error fetching live data:", err);
-        setLoading(false);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
 
     checkAuthAndFetchData();
+
+    return () => {
+      isMounted = false; 
+    };
   }, [navigate, CtfLabs]);
 
   const handleLabClick = (id) => navigate(`/labDetailPage/${id}`);
 
-  // --- SEARCH & DIFFICULTY FILTER LOGIC ---
+  // --- FILTER & AUTO-SORT LOGIC (Running lab ko automatically TOP par lane ke liye) ---
   const filteredLabs = useMemo(() => {
-    return labsWithLiveData.filter(lab => {
+    let result = labsWithLiveData.filter(lab => {
       const matchesSearch = lab.name.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesDifficulty = selectedDifficulty === "All" || lab.difficulty.toLowerCase() === selectedDifficulty.toLowerCase();
       return matchesSearch && matchesDifficulty;
     });
-  }, [labsWithLiveData, searchQuery, selectedDifficulty]);
 
-  // --- PAGINATION LOGIC (Based on filteredLabs) ---
+    // Agar runningLabId mil chuki hai, toh us lab ko sabse pehle (Top par) shift kar do
+    if (runningLabId !== null) {
+      result.sort((a, b) => {
+        const isARunning = String(a.id).trim() === String(runningLabId).trim();
+        const isBRunning = String(b.id).trim() === String(runningLabId).trim();
+        
+        if (isARunning) return -1;
+        if (isBRunning) return 1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [labsWithLiveData, searchQuery, selectedDifficulty, runningLabId]);
+
+  // --- PAGINATION LOGIC ---
   const indexOfLastLab = currentPage * labsPerPage;
   const indexOfFirstLab = indexOfLastLab - labsPerPage;
   const currentLabs = filteredLabs.slice(indexOfFirstLab, indexOfLastLab);
 
   const totalPages = Math.ceil(filteredLabs.length / labsPerPage);
 
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-    setCurrentPage(1);
-  };
-
-  const handleDifficultyChange = (e) => {
-    setSelectedDifficulty(e.target.value);
-    setCurrentPage(1);
-  };
+  const handlePageChange = (pageNumber) => setCurrentPage(pageNumber);
+  const handleSearchChange = (e) => { setSearchQuery(e.target.value); setCurrentPage(1); };
+  const handleDifficultyChange = (e) => { setSelectedDifficulty(e.target.value); setCurrentPage(1); };
 
   if (loading) {
     return <div className="labs-container"><h3>Loading...</h3></div>;
@@ -139,7 +143,7 @@ function CtfLabsList() {
     <div className="labs-container">
       <h1>Ctf Labs</h1>
      
-      {/* --- SEARCH & DIFFICULTY FILTER UI --- */}
+      {/* --- SEARCH & DIFFICULTY FILTER BAR (No Button Here) --- */}
       <div className="filter-bar">
         <div className="search-box-wrapper">
           <span className="search-icon">🔍</span>
@@ -165,7 +169,7 @@ function CtfLabsList() {
         </select>
       </div>
 
-      {/* Header */}
+      {/* --- TABLE HEADERS --- */}
       <div className="lab-row header-row">
         <div className="column">Name</div>
         <div className="column">VIP or Free</div>
@@ -176,10 +180,9 @@ function CtfLabsList() {
         <div className="column">Progress</div>
       </div>
 
-      {/* List - Ab yahan filtered aur current page ki labs dikhengi */}
+      {/* --- LABS LIST --- */}
       {currentLabs.length > 0 ? (
         currentLabs.map((lab) => {
-          // Yahan string conversion use kiya hai taaki data type match hone ka lafda khatam ho jaye
           const isRunning = runningLabId !== null && String(runningLabId).trim() === String(lab.id).trim();
 
           return (
@@ -203,23 +206,23 @@ function CtfLabsList() {
               <div className="column">{lab.users} Users</div>
               <div className="column">
                 {lab.progress === "Completed" ? (
-                  <div className="progress-circle completed" style={{ backgroundColor: "#2ecc71" }} title="Completed"></div>
+                  <div className="progress-circle completed" style={{ backgroundColor: "#00ffaa" }} title="Completed"></div>
                 ) : (
-                  <div className="progress-circle" title="Not Completed" style={{ border: "2px solid #95a5a6", backgroundColor: "transparent" }}></div>
+                  <div className="progress-circle" title="Not Completed"></div>
                 )}
               </div>
             </div>
           );
         })
       ) : (
-        <div style={{ textAlign: "center", padding: "20px", color: "#94a3b8" }}>
+        <div style={{ textAlign: "center", padding: "20px", color: "#8892b0" }}>
           No labs found matching your filter.
         </div>
       )}
 
-      {/* --- PAGINATION NUMBERS UI --- */}
+      {/* --- PAGINATION NUMBERS --- */}
       {totalPages > 1 && (
-        <div className="pagination" style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "20px" }}>
+        <div className="pagination" style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "30px" }}>
           {Array.from({ length: totalPages }, (_, index) => {
             const pageNumber = index + 1;
             return (
@@ -227,13 +230,13 @@ function CtfLabsList() {
                 key={pageNumber}
                 onClick={() => handlePageChange(pageNumber)}
                 style={{
-                  padding: "8px 12px",
+                  padding: "8px 14px",
                   cursor: "pointer",
-                  backgroundColor: currentPage === pageNumber ? "#2563eb" : "#1e293b",
-                  color: "white",
-                  border: "1px solid #334155",
+                  backgroundColor: currentPage === pageNumber ? "#00ffaa" : "#121824",
+                  color: currentPage === pageNumber ? "#0b0e14" : "#ffffff",
+                  border: "1px solid #1e2533",
                   borderRadius: "6px",
-                  fontWeight: currentPage === pageNumber ? "bold" : "normal"
+                  fontWeight: "bold"
                 }}
               >
                 {pageNumber}

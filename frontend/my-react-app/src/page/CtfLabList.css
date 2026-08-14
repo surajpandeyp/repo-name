@@ -1,16 +1,89 @@
 /* Background setup */
 .labs-container {
-  background-color: #0b0e14; /* Deep dark blue-black */
+  background-color: #0b0e14;
   min-height: 100vh;
   padding: 40px 60px;
   color: #ffffff;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-h1 { font-size: 2rem; margin-bottom: 5px; }
-p { color: #8892b0; margin-bottom: 30px; }
+h1 { 
+  font-size: 2rem; 
+  margin-bottom: 5px; 
+}
 
-/* Table styling */
+p { 
+  color: #8892b0; 
+  margin-bottom: 30px; 
+}
+
+/* --- FILTER BAR & CONTROLS --- */
+.filter-bar {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.search-box-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background-color: #121824;
+  border: 1px solid #1e2533;
+  border-radius: 8px;
+  padding: 0 15px;
+}
+
+.search-icon {
+  margin-right: 10px;
+  color: #5c687e;
+}
+
+.search-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  padding: 12px 0;
+  outline: none;
+  font-size: 0.95rem;
+}
+
+.search-input::placeholder {
+  color: #5c687e;
+}
+
+.difficulty-select {
+  background-color: #121824;
+  border: 1px solid #1e2533;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+/* --- UNIFORM FIND RUNNING BUTTON STYLE --- */
+.find-running-btn {
+  background-color: #121824;
+  border: 1px solid #1e2533;
+  color: #00ffaa;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.find-running-btn:hover {
+  background-color: #161b26;
+  border-color: #00ffaa;
+}
+
+/* --- TABLE STYLING --- */
 .lab-row {
   display: flex;
   align-items: center;
@@ -33,11 +106,15 @@ p { color: #8892b0; margin-bottom: 30px; }
   cursor: default;
 }
 
-.header-row:hover { background-color: transparent; }
+.header-row:hover { 
+  background-color: transparent; 
+}
 
-.column { flex: 1; }
+.column { 
+  flex: 1; 
+}
 
-/* Badge styling */
+/* --- BADGES & INDICATORS --- */
 .diff-badge {
   background: rgba(0, 255, 170, 0.1);
   color: #00ffaa;
@@ -47,7 +124,6 @@ p { color: #8892b0; margin-bottom: 30px; }
   border: 1px solid rgba(0, 255, 170, 0.2);
 }
 
-/* Progress Circle */
 .progress-circle {
   width: 20px;
   height: 20px;
@@ -55,15 +131,11 @@ p { color: #8892b0; margin-bottom: 30px; }
   border-radius: 50%;
 }
 
-
-
-/* Running row highlight style */
 .lab-row.running-row-highlight {
   border: 1px solid #00ffaa !important;
   background-color: rgba(0, 255, 170, 0.05) !important;
 }
 
-/* Running Badge Style */
 .running-badge {
   background-color: #00ffaa;
   color: #0b0e14;

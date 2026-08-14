@@ -57,3 +57,26 @@ p { color: #8892b0; margin-bottom: 30px; }
   border: 2px solid #5c687e;
   border-radius: 50%;
 }
+
+
+/* --- RUNNING LAB STYLES --- */
+
+/* Jab lab run ho rahi ho toh row ka background aur border highlight karne ke liye */
+.lab-row.running-row-highlight {
+  background-color: rgba(0, 255, 170, 0.05);
+  border: 1px solid #00ffaa;
+  position: relative;
+}
+
+/* Lab name ke aage dikhne wale 'RUNNING' badge ki styling */
+.running-badge {
+  background-color: #00ffaa;
+  color: #0b0e14;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 0 10px rgba(0, 255, 170, 0.4);
+}

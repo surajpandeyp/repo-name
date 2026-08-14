@@ -15,37 +15,42 @@ function query(sql, values = []) {
     });
 }
 
-// ==================== 5. VERIFY / LABS STATUS API ====================
-router.post("/runningContainer", auth, async (req, res) => {
+router.get("/runningContainer", auth, async (req, res) => {
     try {
         const userId = req.user.id;
-        const { labIds } = req.body; // Frontend se array aayega lab IDs ka
 
-        // Docker se saare active containers ki list nikalo
+        // Docker se saare running containers ki list nikalo
         const containers = await docker.listContainers();
 
-        // Har lab ke liye check karo ki us user ka koi container chal raha hai ya nahi
-        const labsStatus = labIds.map(labId => {
-            // Pattern match karo jo aapne start/status mein use kiya hai: `_user_${userId}_${labId}`
-            const isRunning = containers.some(c => 
-                c.Names.some(name => name.includes(`_user_${userId}_${labId}`))
-            );
+        // Check karo ki is user ka koi bhi container chal raha hai ya nahi
+        // Pattern: `_user_${userId}_` (isase user ka koi bhi container match ho jayega)
+        const userContainer = containers.find(c => 
+            c.Names.some(name => name.includes(`_user_${userId}_`))
+        );
 
-            return {
-                id: labId,
-                isRunning: isRunning,
-                usersSolvedCount: 0, // Agar database se count lena ho toh query chala sakte ho, abhi ke liye 0 ya static
-                progress: "Not Completed" // Aapke database ke progress logic ke mutabiq
-            };
-        });
+        let runningLabId = null;
+
+        if (userContainer) {
+            // Container ke naam se labId extract karne ka logic
+            // Maan lo container ka name hai: /my-app_user_12_ctf-1
+            // Hum '_user_12_' ke baad wala hissa (labId) nikal lenge
+            const matchedName = userContainer.Names.find(name => name.includes(`_user_${userId}_`));
+            
+            if (matchedName) {
+                const parts = matchedName.split(`_user_${userId}_`);
+                if (parts.length > 1) {
+                    runningLabId = parts[1].replace(/^\//, ''); // Agar aage slash ho toh hata do
+                }
+            }
+        }
 
         return res.json({
             success: true,
-            labs: labsStatus
+            labId: runningLabId // Agar chal raha hoga toh ID aayegi (jaise "ctf-1"), warna null
         });
 
     } catch (err) {
-        console.error("Error in /verify:", err);
+        console.error("Error in /runningContainer:", err);
         return res.status(500).json({
             success: false,
             message: err.message

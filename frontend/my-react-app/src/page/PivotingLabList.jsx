@@ -1,16 +1,19 @@
 import "./CtfLabList.css";
 import { useNavigate } from 'react-router-dom';
-import { allLabs } from './LabData'; // Saara static data yahan se aaya
-import { useEffect, useState } from "react"; 
+import { allLabs } from './LabData'; 
+import { useEffect, useState, useMemo } from "react"; 
 
 function PivotingLabList() {
   const navigate = useNavigate();
   
-  // 1. Logic: Sirf 'test-pivot' category wale labs filter karo
-  const CtfLabs = allLabs.filter(lab => lab.category === 'test-pivot');
+  // 1. Sirf 'test-pivot' category wale labs filter karo (Optimized with useMemo)
+  const PivotLabs = useMemo(() => {
+    return allLabs.filter(lab => lab.category === 'test-pivot');
+  }, []);
 
-  const [labsWithLiveData, setLabsWithLiveData] = useState(CtfLabs);
+  const [labsWithLiveData, setLabsWithLiveData] = useState(PivotLabs);
   const [loading, setLoading] = useState(true);
+  const [runningLabId, setRunningLabId] = useState(null); // Running container tracking state
 
   // --- SEARCH & FILTER STATES ---
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,9 +21,11 @@ function PivotingLabList() {
 
   // --- PAGINATION STATES ---
   const [currentPage, setCurrentPage] = useState(1);
-  const labsPerPage = 10; // Ek page par 10 labs dikhengi
+  const labsPerPage = 10; 
 
   useEffect(() => {
+    let isMounted = true; 
+
     const checkAuthAndFetchData = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -44,7 +49,7 @@ function PivotingLabList() {
         }
 
         // --- STEP B: LIVE DATA FETCH FROM BACKEND ---
-        const labIds = CtfLabs.map(lab => lab.id);
+        const labIds = PivotLabs.map(lab => lab.id);
 
         const liveRes = await fetch("/api/verify", {
           method: "POST",
@@ -57,9 +62,8 @@ function PivotingLabList() {
 
         const liveData = await liveRes.json();
 
-        if (liveData.success) {
-          // --- STEP C: MERGE STATIC DATA WITH BACKEND DATA ---
-          const mergedData = CtfLabs.map(staticLab => {
+        if (liveData.success && isMounted) {
+          const mergedData = PivotLabs.map(staticLab => {
             const liveInfo = liveData.labs.find(l => l.id === staticLab.id);
 
             return {
@@ -68,30 +72,62 @@ function PivotingLabList() {
               progress: liveInfo ? liveInfo.progress : "Not Completed" 
             };
           });
-
           setLabsWithLiveData(mergedData);
         }
-        setLoading(false);
+
+        // --- STEP C: FETCH RUNNING CONTAINER STATUS AUTOMATICALLY ---
+        const runningRes = await fetch("/api/ctf/runningContainer", {
+          method: "GET",
+          headers: { 
+            Authorization: "Bearer " + token 
+          },
+        });
+        const runningData = await runningRes.json();
+        
+        if (runningData.success && runningData.labId && isMounted) {
+          setRunningLabId(runningData.labId); 
+        }
 
       } catch (err) {
         console.log("Error fetching live data:", err);
-        setLoading(false);
+      } finally {
+        if (isMounted) setLoading(false);
       }
     };
 
     checkAuthAndFetchData();
-  }, [navigate]);
+
+    return () => {
+      isMounted = false; 
+    };
+  }, [navigate, PivotLabs]);
 
   const handleLabClick = (id) => navigate(`/labDetailPage/${id}`);
 
-  // --- SEARCH & DIFFICULTY FILTER LOGIC ---
-  const filteredLabs = labsWithLiveData.filter(lab => {
-    const matchesSearch = lab.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesDifficulty = selectedDifficulty === "All" || lab.difficulty.toLowerCase() === selectedDifficulty.toLowerCase();
-    return matchesSearch && matchesDifficulty;
-  });
+  // --- SEARCH, DIFFICULTY FILTER & AUTO-SORT LOGIC (Running lab ko top par lane ke liye) ---
+  const filteredLabs = useMemo(() => {
+    let result = labsWithLiveData.filter(lab => {
+      const matchesSearch = lab.name.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesDifficulty = selectedDifficulty === "All" || lab.difficulty.toLowerCase() === selectedDifficulty.toLowerCase();
+      return matchesSearch && matchesDifficulty;
+    });
 
-  // --- PAGINATION LOGIC (Based on filteredLabs) ---
+    // Agar runningLabId maujood hai, toh us lab ko sabse pehle (Top par) shift kar do
+    if (runningLabId !== null) {
+      result.sort((a, b) => {
+        const isARunning = String(a.id).trim() === String(runningLabId).trim();
+        const isBRunning = String(b.id).trim() === String(runningLabId).trim();
+        
+        if (isARunning) return -1;
+        if (isBRunning) return 1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [labsWithLiveData, searchQuery, selectedDifficulty, runningLabId]);
+
+  // --- PAGINATION LOGIC ---
   const indexOfLastLab = currentPage * labsPerPage;
   const indexOfFirstLab = indexOfLastLab - labsPerPage;
   const currentLabs = filteredLabs.slice(indexOfFirstLab, indexOfLastLab);
@@ -157,30 +193,40 @@ function PivotingLabList() {
         <div className="column">Progress</div>
       </div>
 
-      {/* List - Ab yahan filtered aur current page ki labs dikhengi */}
+      {/* List */}
       {currentLabs.length > 0 ? (
-        currentLabs.map((lab) => (
-          <div key={lab.id} className="lab-row" onClick={() => handleLabClick(lab.id)}>
-            <div className="column">{lab.name}</div>
-            <div className="column">{lab.premium}</div>
+        currentLabs.map((lab) => {
+          const isRunning = runningLabId !== null && String(runningLabId).trim() === String(lab.id).trim();
 
-            <div className="column">
-              <span className="diff-badge">{lab.difficulty}</span>
+          return (
+            <div 
+              key={lab.id} 
+              className={`lab-row ${isRunning ? 'running-row-highlight' : ''}`} 
+              onClick={() => handleLabClick(lab.id)}
+            >
+              <div className="column" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                {lab.name}
+                {isRunning && (
+                  <span className="running-badge">RUNNING</span>
+                )}
+              </div>
+              <div className="column">{lab.premium}</div>
+              <div className="column">
+                <span className="diff-badge">{lab.difficulty}</span>
+              </div>
+              <div className="column">{lab.os}</div>
+              <div className="column">{lab.xp} XP</div>
+              <div className="column">{lab.users} Users</div>
+              <div className="column">
+                {lab.progress === "Completed" ? (
+                  <div className="progress-circle completed" style={{ backgroundColor: "#2ecc71" }} title="Completed"></div>
+                ) : (
+                  <div className="progress-circle" title="Not Completed" style={{ border: "2px solid #95a5a6", backgroundColor: "transparent" }}></div>
+                )}
+              </div>
             </div>
-            <div className="column">{lab.os}</div>
-            <div className="column">{lab.xp} XP</div>
-            
-            <div className="column">{lab.users} Users</div>
-            
-            <div className="column">
-              {lab.progress === "Completed" ? (
-                <div className="progress-circle completed" style={{ backgroundColor: "#2ecc71" }} title="Completed"></div>
-              ) : (
-                <div className="progress-circle" title="Not Completed" style={{ border: "2px solid #95a5a6", backgroundColor: "transparent" }}></div>
-              )}
-            </div>
-          </div>
-        ))
+          );
+        })
       ) : (
         <div style={{ textAlign: "center", padding: "20px", color: "#94a3b8" }}>
           No labs found matching your filter.
