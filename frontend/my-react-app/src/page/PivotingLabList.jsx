@@ -76,7 +76,7 @@ function PivotingLabList() {
         }
 
         // --- STEP C: FETCH RUNNING CONTAINER STATUS AUTOMATICALLY ---
-        const runningRes = await fetch("/api/ctf/runningContainer", {
+        const runningRes = await fetch("/api/test-pivot/runningContainer", {
           method: "GET",
           headers: { 
             Authorization: "Bearer " + token 

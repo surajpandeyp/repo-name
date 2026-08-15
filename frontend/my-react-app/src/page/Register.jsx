@@ -11,7 +11,6 @@ function Register() {
     cpassword: "",
   });
 
-  // Error state add ki hai
   const [passwordError, setPasswordError] = useState("");
 
   const validatePassword = (pass) => {
@@ -27,7 +26,6 @@ function Register() {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
 
-    // Agar password field hai to validation run karo
     if (name === "password") {
       validatePassword(value);
     }
@@ -36,7 +34,6 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Check errors before submitting
     if (passwordError) {
       alert("Please fix password errors first.");
       return;
@@ -48,6 +45,7 @@ function Register() {
     }
 
     try {
+      // Apne backend route ke mutabiq URL yahan set kar lena
       const res = await fetch("/api/pivoting/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -57,12 +55,14 @@ function Register() {
       const data = await res.json();
       if (res.ok) {
         alert(data.message);
-        navigate("/");
+        // Registration successful hone ke baad user ko email ke sath OTP page par bhej do
+        navigate("/verify-otp", { state: { email: formData.email } });
       } else {
         alert(data.message || "Registration failed");
       }
     } catch (error) {
       console.log(error);
+      alert("Something went wrong. Please try again.");
     }
   };
 
@@ -76,12 +76,11 @@ function Register() {
         
         <input type="password" name="password" placeholder="Enter password" value={formData.password} onChange={handleChange} required />
         
-        {/* Error message yaha dikhega */}
         {passwordError && <p style={{ color: "red", fontSize: "12px", margin: "0" }}>{passwordError}</p>}
 
         <input type="password" name="cpassword" placeholder="Confirm password" value={formData.cpassword} onChange={handleChange} required />
 
-        <button type="submit">Register</button>
+        <button type="submit">Register & Send OTP</button>
 
         <p className="signup-text">
           Already have an account? <Link to="/"> Login</Link>

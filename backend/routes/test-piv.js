@@ -133,7 +133,7 @@ router.post("/start", auth, async (req, res) => {
         const existing = allContainers.find(c => c.Names.some(n => n.includes(`_user_${userId}_`)));
         
         if (existing) {
-            return res.json({ success: false, message: "A lab is already running. Please stop it first." });
+            return res.json({ success: false, message: "Active lab detected. Please stop your running lab to proceed.." });
         }
 
         const findcontainers = await query(

@@ -1,0 +1,107 @@
+/* Main Container jo pure page ko cover karega */
+.otp-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f4f6f8; /* Light grey background */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* OTP Form ka Box */
+.otp-form {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* Heading (H2) */
+.otp-form h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+    font-size: 26px;
+    font-weight: 700;
+}
+
+/* Paragraph (Instruction text) */
+.otp-form p {
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+/* Email address ko bold karne ke liye */
+.otp-form p b {
+    color: #007bff;
+    word-break: break-all; /* Agar email lamba ho toh break ho jaye */
+}
+
+/* Input Field (OTP ke liye) */
+.otp-form input {
+    width: 100%;
+    padding: 15px;
+    font-size: 22px; /* Thoda bada font OTP ke liye */
+    letter-spacing: 8px; /* Aksharon ke beech ki jagah (OTP style) */
+    text-align: center;
+    border: 2px solid #e1e1e1;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    box-sizing: border-box; /* Padding ko width mein include karega */
+    transition: border-color 0.3s;
+}
+
+/* Input Focus hone par style */
+.otp-form input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+/* Verify Button */
+.otp-form button {
+    width: 100%;
+    padding: 15px;
+    background-color: #007bff; /* Primary Blue */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+/* Button Hover effect */
+.otp-form button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Button Active effect (click karne par) */
+.otp-form button:active {
+    transform: scale(0.98); /* Halki si animation click par */
+}
+
+/* Responsive Design (Mobile screens ke liye) */
+@media (max-width: 480px) {
+    .otp-form {
+        padding: 25px;
+        margin: 20px;
+    }
+    
+    .otp-form h2 {
+        font-size: 22px;
+    }
+    
+    .otp-form input {
+        font-size: 18px;
+        letter-spacing: 5px;
+        padding: 12px;
+    }
+}

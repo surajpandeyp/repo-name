@@ -162,7 +162,7 @@ router.post("/start", auth, async (req, res) => {
         const running = await docker.listContainers();
         const alreadyRunning = running.find(c => c.Names.some(n => n.includes(`_user_${userId}_`)));
         if (alreadyRunning) {
-            return res.json({ success: false, message: "Lab already running" });
+            return res.json({ success: false, message: "Active lab detected. Please stop your running lab to proceed." });
         }
 
         // 4. CHECK CONTAINERS FIRST (Networks banane se PEHLE)

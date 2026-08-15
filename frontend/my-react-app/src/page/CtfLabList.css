@@ -33,21 +33,34 @@ p {
   border: 1px solid #1e2533;
   border-radius: 8px;
   padding: 0 15px;
+  height: 45px;
+  box-sizing: border-box; /* Double box sizing fix */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Click karne par sirf wrapper par glow aayega, double border nahi */
+.search-box-wrapper:focus-within {
+  border-color: #00ffaa;
+  box-shadow: 0 0 5px rgba(0, 255, 170, 0.2);
 }
 
 .search-icon {
   margin-right: 10px;
   color: #5c687e;
+  display: flex;
+  align-items: center;
 }
 
 .search-input {
   width: 100%;
-  background: transparent;
-  border: none;
+  background: transparent !important; /* Extra background remove karne ke liye */
+  border: none !important;           /* Input ki apni border hatane ke liye */
   color: #ffffff;
-  padding: 12px 0;
-  outline: none;
+  padding: 0;
+  outline: none !important;         /* Default browser blue/white outline hatane ke liye */
   font-size: 0.95rem;
+  height: 100%;
+  box-shadow: none !important;
 }
 
 .search-input::placeholder {
@@ -58,11 +71,18 @@ p {
   background-color: #121824;
   border: 1px solid #1e2533;
   color: #ffffff;
-  padding: 12px 20px;
+  padding: 0 20px;
   border-radius: 8px;
   outline: none;
   cursor: pointer;
   font-size: 0.95rem;
+  height: 45px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+
+.difficulty-select:focus {
+  border-color: #00ffaa;
 }
 
 /* --- UNIFORM FIND RUNNING BUTTON STYLE --- */
@@ -70,11 +90,16 @@ p {
   background-color: #121824;
   border: 1px solid #1e2533;
   color: #00ffaa;
-  padding: 12px 20px;
+  padding: 0 20px;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
   font-size: 0.95rem;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
   transition: all 0.2s ease;
 }
 
@@ -104,6 +129,7 @@ p {
   letter-spacing: 1px;
   border-bottom: 2px solid #1e2533;
   cursor: default;
+  padding: 15px 20px;
 }
 
 .header-row:hover { 

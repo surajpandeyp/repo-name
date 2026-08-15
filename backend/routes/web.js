@@ -170,7 +170,7 @@ router.post("/start", auth, async (req, res) => {
         if (alreadyRunning) {
             return res.json({
                 success: false,
-                message: "Lab already running"
+                message: "Active lab detected. Please stop your running lab to proceed."
             });
         }
 

@@ -22,6 +22,7 @@ import AboutPage from "./page/AboutPage";
 import FeedbackPage from "./page/FeedbackPage";
 import VpnGuide from "./page/VpnGuide";
 import LabIssueForm from "./page/LabIssueForm";
+import VerifyOTP from "./page/OtpVerify";
 
 // Ek chhota component banaya jo location check karke Navbar dikhayega ya nahi
 function Layout() {
@@ -44,7 +45,7 @@ function Layout() {
         <Route path="/web" element={<Web />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/ForgotPassword" element={<ForgotPassword />} />
-        <Route path="/subcribe" element={<Subscribe />} /> 
+        <Route path="/subscribe" element={<Subscribe />} /> 
         <Route path="/ctf" element={<Ctf />} />
         <Route path="/testLogin" element={<TestLogin />} />
         <Route path="/pivotingLabList" element={<PivotingLabList />} />
@@ -57,6 +58,7 @@ function Layout() {
         <Route path="/feedback" element={<FeedbackPage />} />
         <Route path="/vpn-setup" element={<VpnGuide />} />
         <Route path="/ssueForm" element={<LabIssueForm />} />
+        <Route path="/verify-otp" element={<VerifyOTP />} />
       </Routes>
     </>
   );

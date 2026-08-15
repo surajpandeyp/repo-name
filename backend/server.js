@@ -14,6 +14,7 @@ app.use("/api/subcriptions",  require("./routes/subscriptions"))
 app.use("/api/web",  require("./routes/web"))
 app.use("/api/ctf", require("./routes/ctf"))
 app.use("/api/test-pivot", require("./routes/test-piv"));
+app.use("/api/vpm" , require("./routes/vpn"))
 
 // for flag
 app.use("/api", require("./routes/profile"));
