@@ -1,46 +1,69 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import "../page/OtpVerify.css"; // Nayi CSS file import kar li
 
 function VerifyOTP() {
-    const [otp, setOtp] = useState('');
-    const navigate = useNavigate();
-    const location = useLocation();
-    
-    // Registration page se email pass karke yahan la sakte hain
-    const email = location.state?.email || ''; 
+  const navigate = useNavigate();
+  const location = useLocation();
+  const email = location.state?.email || "";
+  const [otp, setOtp] = useState("");
 
-    const handleVerify = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post('/api/pivoting/verify-otp', {
-                email,
-                otp
-            });
-            alert(response.data.message);
-            navigate('/login'); // Verify hone ke baad login page par bhej do
-        } catch (error) {
-            alert(error.response?.data?.message || "Verification failed");
-        }
-    };
+  const handleVerify = async (e) => {
+    e.preventDefault();
 
-    return (
-        <div style={{ padding: '20px' }}>
-            <h2>Enter OTP Verification Code</h2>
-            <p>OTP sent to: <b>{email}</b></p>
-            <form onSubmit={handleVerify}>
-                <input 
-                    type="text" 
-                    placeholder="Enter 6-digit OTP" 
-                    value={otp} 
-                    onChange={(e) => setOtp(e.target.value)} 
-                    maxLength="6"
-                    required 
-                />
-                <button type="submit">Verify OTP</button>
-            </form>
-        </div>
-    );
+    if (!otp) {
+      alert("Please enter the OTP");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/pivoting/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert(data.message);
+        navigate("/");
+      } else {
+        alert(data.message || "OTP verification failed");
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Something went wrong. Please try again.");
+    }
+  };
+
+  return (
+    <div className="otp-page-wrapper">
+      <div className="otp-card">
+        <h2>Enter Verification Code</h2>
+        <p className="otp-subtitle">
+          Please enter the 6-digit code sent to <br />
+          <span className="otp-email">{email || "your registered email"}</span>
+        </p>
+
+        <form onSubmit={handleVerify}>
+          <div className="input-group">
+            <input 
+              type="text" 
+              placeholder="Enter 6-digit OTP" 
+              value={otp} 
+              onChange={(e) => setOtp(e.target.value)} 
+              maxLength="6"
+              required 
+            />
+          </div>
+
+          <button type="submit" className="verify-btn">Verify OTP</button>
+        </form>
+      </div>
+    </div>
+  );
 }
+
 
 export default VerifyOTP;

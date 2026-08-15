@@ -1,107 +1,93 @@
-/* Main Container jo pure page ko cover karega */
-.otp-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #f4f6f8; /* Light grey background */
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+/* Full screen centering wrapper */
+.otp-page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 80px); /* Navbar ki height chhod kar center mein layega */
+  background-color: #0b132b; /* Dark theme background */
+  padding: 20px;
 }
 
-/* OTP Form ka Box */
-.otp-form {
-    background: #ffffff;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); /* Soft shadow */
-    width: 100%;
-    max-width: 400px;
-    text-align: center;
-    box-sizing: border-box;
+/* Card styling */
+.otp-card {
+  background: #1c2541;
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  border: 1px solid #3a506b;
 }
 
-/* Heading (H2) */
-.otp-form h2 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #333;
-    font-size: 26px;
-    font-weight: 700;
+/* Headings & Subtitles */
+.otp-card h2 {
+  color: #ffffff;
+  font-size: 24px;
+  margin-bottom: 10px;
+  font-weight: 600;
 }
 
-/* Paragraph (Instruction text) */
-.otp-form p {
-    color: #666;
-    font-size: 16px;
-    margin-bottom: 30px;
-    line-height: 1.5;
+.otp-subtitle {
+  color: #8d99ae;
+  font-size: 14px;
+  margin-bottom: 25px;
+  line-height: 1.5;
 }
 
-/* Email address ko bold karne ke liye */
-.otp-form p b {
-    color: #007bff;
-    word-break: break-all; /* Agar email lamba ho toh break ho jaye */
+.otp-email {
+  color: #48cae4;
+  font-weight: 500;
 }
 
-/* Input Field (OTP ke liye) */
-.otp-form input {
-    width: 100%;
-    padding: 15px;
-    font-size: 22px; /* Thoda bada font OTP ke liye */
-    letter-spacing: 8px; /* Aksharon ke beech ki jagah (OTP style) */
-    text-align: center;
-    border: 2px solid #e1e1e1;
-    border-radius: 8px;
-    margin-bottom: 25px;
-    box-sizing: border-box; /* Padding ko width mein include karega */
-    transition: border-color 0.3s;
+/* Input styling */
+.input-group {
+  margin-bottom: 20px;
 }
 
-/* Input Focus hone par style */
-.otp-form input:focus {
-    border-color: #007bff;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+.otp-card input {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 18px;
+  letter-spacing: 4px; /* OTP ke numbers ke beech stylish spacing */
+  text-align: center;
+  background-color: #0b132b;
+  border: 1px solid #415a77;
+  border-radius: 8px;
+  color: #ffffff;
+  outline: none;
+  transition: border-color 0.3s ease;
 }
 
-/* Verify Button */
-.otp-form button {
-    width: 100%;
-    padding: 15px;
-    background-color: #007bff; /* Primary Blue */
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 18px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.1s;
+.otp-card input::placeholder {
+  letter-spacing: normal;
+  font-size: 14px;
+  color: #6c757d;
 }
 
-/* Button Hover effect */
-.otp-form button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
+.otp-card input:focus {
+  border-color: #48cae4;
+  box-shadow: 0 0 5px rgba(72, 202, 228, 0.3);
 }
 
-/* Button Active effect (click karne par) */
-.otp-form button:active {
-    transform: scale(0.98); /* Halki si animation click par */
+/* Button styling */
+.verify-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #4361ee;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
 }
 
-/* Responsive Design (Mobile screens ke liye) */
-@media (max-width: 480px) {
-    .otp-form {
-        padding: 25px;
-        margin: 20px;
-    }
-    
-    .otp-form h2 {
-        font-size: 22px;
-    }
-    
-    .otp-form input {
-        font-size: 18px;
-        letter-spacing: 5px;
-        padding: 12px;
-    }
+.verify-btn:hover {
+  background-color: #3a0ca3;
+}
+
+.verify-btn:active {
+  transform: scale(0.98);
 }
